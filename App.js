@@ -1,20 +1,24 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import "./global.css"
+import { StatusBar, useColorScheme } from "react-native";
+import { PortalHost } from '@rn-primitives/portal';
+import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native";
+
+// Stacks
+import HomeScreen from "./stacks/HomeScreen";
 
 export default function App() {
+  const isDarkMode = useColorScheme() === 'dark';
+  const backgroundStyle = { backgroundColor: isDarkMode ? DarkTheme.colors.background : DefaultTheme.colors.background, flex: 1 };
+
+  const theme = {
+    ...isDarkMode ? DarkTheme : DefaultTheme,
+    colors: isDarkMode ? DarkTheme.colors : DefaultTheme.colors,
+  };
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <ThemeProvider value={theme}>
+      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={backgroundStyle.backgroundColor} />
+      <HomeScreen />
+      <PortalHost />
+    </ThemeProvider>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
