@@ -1,10 +1,11 @@
 import "./global.css"
+import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar, useColorScheme } from "react-native";
 import { PortalHost } from '@rn-primitives/portal';
 import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native";
 
 // Stacks
-import HomeScreen from "./stacks/HomeScreen";
+import { RootNavigator } from '@/navigation/RootNavigator';
 
 export default function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -16,9 +17,11 @@ export default function App() {
   };
   return (
     <ThemeProvider value={theme}>
-      <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={backgroundStyle.backgroundColor} />
-      <HomeScreen />
-      <PortalHost />
+      <NavigationContainer>
+        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={backgroundStyle.backgroundColor} />
+        <RootNavigator />
+        <PortalHost />
+      </NavigationContainer>
     </ThemeProvider>
   );
 }
