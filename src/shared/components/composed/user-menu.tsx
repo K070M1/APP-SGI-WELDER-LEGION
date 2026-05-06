@@ -1,5 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { LogOutIcon, SettingsIcon } from 'lucide-react-native';
 import type { TriggerRef } from '@rn-primitives/popover';
 
@@ -14,41 +15,43 @@ import {
   PopoverTrigger,
 } from '@/shared/components/ui/popover';
 
-// Props para inyectar las funciones desde la navegación
+// Ya no necesitamos onNavigateSettings en las props
 interface UserMenuProps {
-  children: React.ReactNode; // Aquí irá el botón del Tab
-  onNavigateSettings: () => void;
-  onSignOut: () => void;
+  children: React.ReactNode; // El icono que pasaremos desde el Tab
+  onSignOut?: () => void;
 }
 
-// Datos mockeados (Luego vendrán del estado global Zustand)
 const USER = {
   fullName: 'Jomar Peralta',
   initials: 'JP',
   username: 'admin_welder',
 };
 
-export function UserMenu({ children, onNavigateSettings, onSignOut }: UserMenuProps) {
+export function UserMenu({ children, onSignOut }: UserMenuProps) {
   const popoverTriggerRef = React.useRef<TriggerRef>(null);
+  const navigation = useNavigation<any>();
 
   function handleSignOut() {
     popoverTriggerRef.current?.close();
-    onSignOut();
+    if (onSignOut) onSignOut();
   }
 
   function handleSettings() {
     popoverTriggerRef.current?.close();
-    onNavigateSettings();
+    navigation.navigate('Profile_Main');
   }
 
   return (
     <Popover>
-      {/* El trigger ahora es el "children", es decir, el botón del Tab */}
-      <PopoverTrigger asChild ref={popoverTriggerRef}>
+      {/* 
+        Al quitar 'asChild' y usar el className aquí, convertimos el Trigger 
+        en el contenedor principal que agrupa tu icono y el texto CUENTA.
+      */}
+      <PopoverTrigger ref={popoverTriggerRef} className="flex-col items-center justify-center pt-2">
         {children}
+        <Text className="text-[10px] font-medium text-[#8E8E93] mt-1">CUENTA</Text>
       </PopoverTrigger>
 
-      {/* side="top" para que flote por encima de la barra de navegación */}
       <PopoverContent align="center" side="top" sideOffset={15} className="w-72 p-0 rounded-2xl bg-white shadow-sm border-[#E8E8E8]">
         <View className="p-4">
 
@@ -76,7 +79,7 @@ export function UserMenu({ children, onNavigateSettings, onSignOut }: UserMenuPr
               onPress={handleSettings}
             >
               <Icon as={SettingsIcon} className="size-4 text-[#333333] mr-2" />
-              <Text className="text-[#333333] text-xs font-bold">Ajustes</Text>
+              <Text className="text-[#333333] text-xs font-bold" >Ajustes</Text>
             </Button>
 
             <Button

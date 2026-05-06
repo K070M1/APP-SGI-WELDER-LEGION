@@ -2,24 +2,15 @@ import React from 'react';
 import { View, Text, Pressable } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Package, ArrowLeftRight, Users, UserCircle, Settings, LogOut, User } from 'lucide-react-native';
+import { Package, ArrowLeftRight, Users, UserCircleIcon } from 'lucide-react-native';
 
 import { ROUTES } from './routes';
 import { ProductListScreen } from '@/modules/products/screens/ListScreen';
 import { MovementListScreen } from '@/modules/movements/screens/ListScreen';
 import { UserListScreen } from '@/modules/users/screens/ListScreen';
 
-// Componentes del Dropdown
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuGroup,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from '@/shared/components/ui/dropdown-menu';
 import { UserMenu } from '@/shared/components/composed/user-menu';
+import { Icon } from '@/shared/components/ui/icon';
 
 const Tab = createBottomTabNavigator();
 
@@ -83,18 +74,15 @@ export function MainTabs() {
 
       {/* 4. CUENTA (Con Dropdown Menu) */}
       <Tab.Screen
-        name={ROUTES.PROFILE.MAIN}
+        name="AccountMenu"
         component={View}
         options={{
-          tabBarLabel: 'CUENTA',
-          tabBarIcon: ({ color, size }) => <UserCircle color={color} size={size} />,
-          tabBarButton: (props) => (
-            <UserMenu
-              onNavigateSettings={() => console.log('Navegando a configuración...')}
-              onSignOut={() => console.log('Cerrando sesión...')}
-            >
-              <Pressable {...(props as any)} />
-            </UserMenu>
+          tabBarButton: () => (
+            <View className="flex-1 items-center justify-center">
+              <UserMenu>
+                <Icon as={UserCircleIcon} className="size-6 text-[#8E8E93]" />
+              </UserMenu>
+            </View>
           ),
         }}
       />
