@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, FlatList, TextInput, SafeAreaView, Platform } from 'react-native';
-import { Search, Plus, FilterIcon, QrCode, Trash2, AlertCircleIcon, MoveLeftIcon } from 'lucide-react-native';
+import { Search, Plus, FilterIcon } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
 import { Button } from '@/shared/components/ui/button';
@@ -13,25 +13,10 @@ import type { ProductListItem } from '@/dtos/products/product.dto';
 import { PRODUCT_STOCK_OPTIONS, PRODUCT_STATUS_OPTIONS } from '@/shared/constants/filters';
 import { ROUTES } from '@/navigation/routes';
 
-// Importamos los Modales
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from '@/shared/components/ui/dialog';
+import { usePagination } from '@/shared/hooks/use-pagination';
+import { Pagination } from '@/shared/components/composed/pagination';
+import { useUiOverlay } from '@/shared/contexts/UiOverlayContext';
 
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/shared/components/ui/alert-dialog';
 
 const INITIAL_MOCK_DATA: ProductListItem[] = [
   {
@@ -77,17 +62,13 @@ const INITIAL_MOCK_DATA: ProductListItem[] = [
 
 export function ProductListScreen() {
   const navigation = useNavigation<any>();
+  const { showAlert } = useUiOverlay();
   const [products, setProducts] = useState<ProductListItem[]>(INITIAL_MOCK_DATA);
   const [searchQuery, setSearchQuery] = useState('');
   const [stockFilter, setStockFilter] = useState({ value: 'all', label: 'Todos' });
   const [statusFilter, setStatusFilter] = useState({ value: 'all', label: 'Todos' });
-  const [pageSize, setPageSize] = useState({ value: '5', label: '5' });
-  const [currentPage, setCurrentPage] = useState(1);
 
-  // --- ESTADOS PARA LOS MODALES ---
-  const [selectedProduct, setSelectedProduct] = useState<ProductListItem | null>(null);
-  const [isQRModalOpen, setIsQRModalOpen] = useState(false);
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const pagination = usePagination(products.length, 10);
 
   // --- FUNCIONES DE FILTRO ---
   const handleSearch = () => {
@@ -99,24 +80,11 @@ export function ProductListScreen() {
     setStockFilter({ value: 'all', label: 'Todos' });
     setStatusFilter({ value: 'all', label: 'Todos' });
     setProducts(INITIAL_MOCK_DATA);
-    setCurrentPage(1);
   };
 
-  const pageSizeNumber = Number(pageSize.value);
-  const totalRecords = products.length;
-  const totalPages = Math.max(1, Math.ceil(totalRecords / pageSizeNumber));
-  const currentPageSafe = Math.min(currentPage, totalPages);
+  const pageSizeNumber = Number(pagination.pageSize);
+  const currentPageSafe = Math.min(pagination.currentPage, pagination.totalPages);
   const paginatedProducts = products.slice((currentPageSafe - 1) * pageSizeNumber, currentPageSafe * pageSizeNumber);
-  const pageStart = totalRecords === 0 ? 0 : (currentPageSafe - 1) * pageSizeNumber + 1;
-  const pageEnd = Math.min(totalRecords, currentPageSafe * pageSizeNumber);
-
-  const handlePageSizeChange = (option: any) => {
-    setPageSize(option as any);
-    setCurrentPage(1);
-  };
-
-  const handlePrevPage = () => setCurrentPage(page => Math.max(1, page - 1));
-  const handleNextPage = () => setCurrentPage(page => Math.min(totalPages, page + 1));
 
   // --- FUNCIONES DE MOCK DE STOCK ---
   const handleIncrementStock = (id_producto: string) => {
@@ -127,26 +95,54 @@ export function ProductListScreen() {
     setProducts(prev => prev.map(p => p.id_producto === id_producto && p.stock > 0 ? { ...p, stock: p.stock - 1 } : p));
   };
 
-  // --- FUNCIONES DE MODALES ---
-  const handleOpenQR = (product: ProductListItem) => {
-    setSelectedProduct(product);
-    setIsQRModalOpen(true);
+  // --- FUNCIONES DE ACCIONES GLOBALES ---
+  const handleShowQR = (product: ProductListItem) => {
+    showAlert({
+      isQR: true,
+      title: `Código QR`,
+      text: product.nombre,
+      qrCode: product.codigo,
+    });
   };
 
-  const handleOpenDelete = (id_producto: string) => {
+  const handleDeleteProduct = (id_producto: string) => {
     const product = products.find(p => p.id_producto === id_producto);
-    if (product) {
-      setSelectedProduct(product);
-      setIsDeleteModalOpen(true);
-    }
-  };
+    if (!product) return;
 
-  const confirmDelete = () => {
-    if (selectedProduct) {
-      setProducts(prev => prev.filter(p => p.id_producto !== selectedProduct.id_producto));
-      setIsDeleteModalOpen(false);
-      setTimeout(() => setSelectedProduct(null), 300);
-    }
+    showAlert({
+      icon: 'warning',
+      title: '¿Eliminar Producto?',
+      text: `${product.nombre}\n\nEsta acción no se puede deshacer.`,
+      actions: [
+        {
+          name: 'CANCELAR',
+          color: 'white',
+          onClick: () => true,
+        },
+        {
+          name: 'SÍ, ELIMINAR',
+          color: 'red',
+          onClick: async () => {
+            setProducts(prev => prev.filter(p => p.id_producto !== product.id_producto));
+
+            // Mostrar alerta de éxito
+            showAlert({
+              icon: 'success',
+              title: '¡Eliminado!',
+              text: `${product.nombre} ha sido eliminado correctamente.`,
+              actions: [
+                {
+                  name: 'ACEPTAR',
+                  color: 'blue',
+                  onClick: () => true,
+                },
+              ],
+            });
+            return true;
+          },
+        },
+      ],
+    });
   };
 
   return (
@@ -264,132 +260,27 @@ export function ProductListScreen() {
               product={item}
               onIncrementStock={handleIncrementStock}
               onDecrementStock={handleDecrementStock}
-              onDelete={handleOpenDelete}
-              onQR={() => handleOpenQR(item)}
+              onDelete={handleDeleteProduct}
+              onQR={() => handleShowQR(item)}
             />
           )}
         />
 
-        <View className="border-t border-slate-800 my-3" />
+        <View className="border-t border-slate-200 mt-5 mb-2" />
 
-        <View className="flex-row grid grid-cols-6 items-center justify-around w-full gap-5">
-
-          {/* Bloque 1: Mostrar (Ocupa 2 columnas) */}
-          <View className="col-span-3 flex-row items-center gap-2">
-            <Text className="text-sm font-medium text-slate-600">Mostrar</Text>
-            <Select value={pageSize} onValueChange={handlePageSizeChange}>
-              <SelectTrigger className="w-24 rounded-xl bg-white border border-slate-200 h-10">
-                <SelectValue placeholder="5" />
-              </SelectTrigger>
-              <SelectContent align="start" sideOffset={8} className="w-28 rounded-xl border-slate-100">
-                <SelectGroup>
-                  <SelectLabel>
-                    <Text className="font-bold text-slate-900">Registros</Text>
-                  </SelectLabel>
-                  {[5, 10, 15, 20].map((size) => (
-                    <SelectItem key={size} value={String(size)} label={String(size)}>
-                      <Text>{size}</Text>
-                    </SelectItem>
-                  ))}
-                </SelectGroup>
-              </SelectContent>
-            </Select>
-          </View>
-
-          {/* Bloque 2: Botones de paginación (Ocupa 2 columnas) */}
-          <View className="col-span-2 flex-row items-center justify-end gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-xl h-10 px-3 flex-row items-center justify-center border-0 shadow-sm bg-white"
-              onPress={handlePrevPage}
-            >
-              <Text className="text-slate-600 font-bold">&lt;</Text>
-            </Button>
-
-            <View className="rounded-xl bg-slate-100 h-10 px-4 flex-row items-center justify-center shadow-sm">
-              <Text className="text-slate-900 font-bold">{String(currentPageSafe).padStart(2, '0')}</Text>
-            </View>
-
-            <Button
-              variant="outline"
-              size="sm"
-              className="rounded-xl h-10 px-3 flex-row items-center justify-center border-0 shadow-sm bg-white"
-              onPress={handleNextPage}
-            >
-              <Text className="text-slate-600 font-bold">&gt;</Text>
-            </Button>
-          </View>
-
-        </View>
-
-        {/* Bloque 3: Texto centrado abajo */}
-        <View className="w-full items-center justify-center mt-1 mb-3">
-          <Text className="text-sm text-slate-600">
-            {pageStart}-{pageEnd} de {totalRecords} registros
-          </Text>
-        </View>
+        <Pagination
+          currentPage={pagination.currentPage}
+          pageSize={pagination.pageSize}
+          totalRecords={pagination.totalRecords}
+          pageStart={pagination.pageStart}
+          pageEnd={pagination.pageEnd}
+          canNextPage={pagination.canNextPage}
+          canPrevPage={pagination.canPrevPage}
+          onNextPage={pagination.handleNextPage}
+          onPrevPage={pagination.handlePrevPage}
+          onPageSizeChange={pagination.handlePageSizeChange}
+        />
       </View>
-
-      {/* MODAL 1: CÓDIGO QR */}
-      <Dialog open={isQRModalOpen} onOpenChange={setIsQRModalOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-white rounded-[32px] p-6">
-          <DialogHeader>
-            <DialogTitle className="text-center text-2xl font-extrabold text-slate-900 mt-2">
-              Código QR
-            </DialogTitle>
-            <DialogDescription className="text-center text-slate-500 text-sm mt-1 px-4">
-              {selectedProduct?.nombre}
-            </DialogDescription>
-          </DialogHeader>
-
-          <View className="items-center justify-center py-6">
-            <View className="size-56 bg-slate-50 rounded-3xl border border-slate-200 items-center justify-center shadow-sm">
-              <Icon as={QrCode} size={64} className="text-slate-300" />
-              <Text className="text-slate-400 font-semibold mt-4 tracking-wider text-xs uppercase">
-                {selectedProduct?.codigo}
-              </Text>
-            </View>
-          </View>
-        </DialogContent>
-      </Dialog>
-
-      {/* MODAL 2: CONFIRMACIÓN DE ELIMINAR */}
-      <AlertDialog open={isDeleteModalOpen} onOpenChange={setIsDeleteModalOpen}>
-        <AlertDialogContent className="bg-white rounded-[32px] p-6">
-          <AlertDialogHeader className="items-center">
-            <View className="mb-3">
-              <Icon as={AlertCircleIcon} size={96} className="text-[#FF8787]" />
-            </View>
-            <AlertDialogTitle className="text-[#333333] font-extrabold text-2xl text-center">
-              ¿Eliminar Producto?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="text-slate-500 mt-2 text-base text-center leading-5 px-2">
-              Producto: <Text className="font-bold text-[#333333] text-center">{selectedProduct?.nombre}</Text>
-              {"\n"}Esta acción no se puede deshacer.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <AlertDialogFooter className="mt-4 flex-row justify-center gap-4">
-            <AlertDialogCancel
-              className="flex rounded-xl bg-white border border-[#E8E8E8] flex-row items-center justify-center"
-              onPress={() => setIsDeleteModalOpen(false)}
-            >
-              <Icon as={MoveLeftIcon} size={18} className="text-[#333333] mr-2" />
-              <Text className="text-[#333333] font-bold bg-transparent border-0">Cancelar</Text>
-            </AlertDialogCancel>
-
-            <AlertDialogAction
-              className="flex rounded-xl bg-[#FF8787] flex-row items-center justify-center"
-              onPress={confirmDelete}
-            >
-              <Icon as={Trash2} size={18} className="text-white mr-2" />
-              <Text className="text-white font-bold bg-transparent border-0">Eliminar</Text>
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-    </SafeAreaView >
+    </SafeAreaView>
   );
 }

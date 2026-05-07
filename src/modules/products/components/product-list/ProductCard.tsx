@@ -49,8 +49,8 @@ export function ProductCard({
 
       <View className="flex-row items-start gap-4 mb-3">
         <TouchableOpacity onPress={onPressImage} activeOpacity={0.7}>
-          <Avatar alt={product.nombre} className="size-16 rounded-2xl bg-[#748FFC]/10 border border-[#748FFC]/20 flex items-center justify-center">
-            <AvatarFallback>
+          <Avatar alt={product.nombre} className="size-16 rounded-full bg-[#748FFC]/10 border border-[#748FFC]/20 flex items-center justify-center">
+            <AvatarFallback className='bg-white/10'>
               <Icon as={Package} className="size-8 text-[#748FFC]" />
             </AvatarFallback>
           </Avatar>

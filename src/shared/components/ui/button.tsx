@@ -14,27 +14,39 @@ const buttonVariants = cva(
     variants: {
       variant: {
         default: cn(
-          'bg-primary active:bg-primary/90 shadow-sm shadow-black/5',
+          'bg-primary active:bg-primary/90 text-primary-foreground shadow-sm shadow-black/5',
           Platform.select({ web: 'hover:bg-primary/90' })
         ),
         destructive: cn(
-          'bg-destructive active:bg-destructive/90 dark:bg-destructive/60 shadow-sm shadow-black/5',
+          'bg-destructive active:bg-destructive/90 text-destructive-foreground shadow-sm shadow-black/5',
           Platform.select({
             web: 'hover:bg-destructive/90 focus-visible:ring-destructive/20 dark:focus-visible:ring-destructive/40',
           })
         ),
+        success: cn(
+          'bg-success active:bg-success/90 text-success-foreground shadow-sm shadow-black/5',
+          Platform.select({ web: 'hover:bg-success/90' })
+        ),
+        warning: cn(
+          'bg-warning active:bg-warning/90 text-warning-foreground shadow-sm shadow-black/5',
+          Platform.select({ web: 'hover:bg-warning/90' })
+        ),
+        info: cn(
+          'bg-info active:bg-info/90 text-info-foreground shadow-sm shadow-black/5',
+          Platform.select({ web: 'hover:bg-info/90' })
+        ),
         outline: cn(
-          'border-border bg-background active:bg-accent dark:bg-input/30 dark:border-input dark:active:bg-input/50 border shadow-sm shadow-black/5',
+          'border-border bg-background active:bg-accent text-foreground dark:bg-input/30 dark:border-input dark:active:bg-input/50 border shadow-sm shadow-black/5',
           Platform.select({
             web: 'hover:bg-accent dark:hover:bg-input/50',
           })
         ),
         secondary: cn(
-          'bg-secondary active:bg-secondary/80 shadow-sm shadow-black/5',
+          'bg-secondary active:bg-secondary/80 text-secondary-foreground shadow-sm shadow-black/5',
           Platform.select({ web: 'hover:bg-secondary/80' })
         ),
         ghost: cn(
-          'active:bg-accent dark:active:bg-accent/50',
+          'active:bg-accent text-foreground dark:active:bg-accent/50',
           Platform.select({ web: 'hover:bg-accent dark:hover:bg-accent/50' })
         ),
         link: '',
@@ -62,7 +74,10 @@ const buttonTextVariants = cva(
     variants: {
       variant: {
         default: 'text-primary-foreground',
-        destructive: 'text-white',
+        destructive: 'text-destructive-foreground',
+        success: 'text-success-foreground',
+        warning: 'text-warning-foreground',
+        info: 'text-info-foreground',
         outline: cn(
           'group-active:text-accent-foreground',
           Platform.select({ web: 'group-hover:text-accent-foreground' })

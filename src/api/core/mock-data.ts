@@ -1,0 +1,97 @@
+/**
+ * Mock Data - Simula respuestas del backend
+ * Cuando el backend esté listo, reemplazar con llamadas reales a axios
+ */
+
+import type { ProductListItem, ProductDetail } from '@/dtos/products/product.dto';
+
+export const MOCK_PRODUCTS: ProductListItem[] = [
+  {
+    id: '1',
+    id_producto: 'prod-001',
+    nombre: 'Electrodo Soldadura E6011 1/8"',
+    codigo: 'SOLD-6011',
+    precio: 14.50,
+    stock: 120,
+    stock_min: 50,
+    id_estado: 1,
+    estado: 'ACTIVO',
+    fecha_creacion: '2026-05-01',
+    usuario_creacion: 'admin',
+  },
+  {
+    id: '2',
+    id_producto: 'prod-002',
+    nombre: 'Máquina de Soldar Inverter 250A',
+    codigo: 'MAQ-INV-250',
+    precio: 850.00,
+    stock: 2,
+    stock_min: 5,
+    id_estado: 1,
+    estado: 'ACTIVO',
+    fecha_creacion: '2026-05-02',
+    usuario_creacion: 'admin',
+  },
+  {
+    id: '3',
+    id_producto: 'prod-003',
+    nombre: 'Amoladora Angular 4-1/2" Inactiva',
+    codigo: 'HERR-AMOL-01',
+    precio: 210.00,
+    stock: 15,
+    stock_min: 3,
+    id_estado: 0,
+    estado: 'INACTIVO',
+    fecha_creacion: '2026-05-03',
+    usuario_creacion: 'admin',
+  },
+  {
+    id: '4',
+    id_producto: 'prod-004',
+    nombre: 'Alambre de Soldadura ER70S-6 1/16"',
+    codigo: 'ALAM-7060',
+    precio: 45.75,
+    stock: 35,
+    stock_min: 20,
+    id_estado: 1,
+    estado: 'ACTIVO',
+    fecha_creacion: '2026-05-04',
+    usuario_creacion: 'admin',
+  },
+  {
+    id: '5',
+    id_producto: 'prod-005',
+    nombre: 'Escudo Protector Soldador',
+    codigo: 'PROT-ESC-01',
+    precio: 28.50,
+    stock: 8,
+    stock_min: 10,
+    id_estado: 1,
+    estado: 'ACTIVO',
+    fecha_creacion: '2026-05-05',
+    usuario_creacion: 'admin',
+  },
+];
+
+export const MOCK_PRODUCT_DETAIL: Record<string, ProductDetail> = {
+  'prod-001': {
+    id: '1',
+    id_producto: 'prod-001',
+    nombre: 'Electrodo Soldadura E6011 1/8"',
+    codigo: 'SOLD-6011',
+    precio: 14.50,
+    stock: 120,
+    stock_min: 50,
+    id_estado: 1,
+    estado: 'ACTIVO',
+    fecha_creacion: '2026-05-01',
+    usuario_creacion: 'admin',
+    descripcion: 'Electrodo rutilo de alta calidad para soldadura en acero dulce',
+    id_marca: 'marca-001',
+    nombre_marca: 'Lincoln Electric',
+    id_subcategoria: 'subcat-001',
+    nombre_subcategoria: 'Electrodos',
+    id_moneda: 'usd',
+    simbolo_moneda: '$',
+  },
+};

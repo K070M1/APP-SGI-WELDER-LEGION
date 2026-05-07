@@ -15,18 +15,33 @@ const badgeVariants = cva(
     variants: {
       variant: {
         default: cn(
-          'bg-primary border-transparent',
+          'bg-primary border-transparent text-primary-foreground',
           Platform.select({ web: '[a&]:hover:bg-primary/90' })
         ),
         secondary: cn(
-          'bg-secondary border-transparent',
+          'bg-secondary border-transparent text-secondary-foreground',
           Platform.select({ web: '[a&]:hover:bg-secondary/90' })
         ),
         destructive: cn(
-          'bg-destructive border-transparent',
+          'bg-destructive border-transparent text-destructive-foreground',
           Platform.select({ web: '[a&]:hover:bg-destructive/90' })
         ),
-        outline: Platform.select({ web: '[a&]:hover:bg-accent [a&]:hover:text-accent-foreground' }),
+        success: cn(
+          'bg-success border-transparent text-success-foreground',
+          Platform.select({ web: '[a&]:hover:bg-success/90' })
+        ),
+        warning: cn(
+          'bg-warning border-transparent text-warning-foreground',
+          Platform.select({ web: '[a&]:hover:bg-warning/90' })
+        ),
+        info: cn(
+          'bg-info border-transparent text-info-foreground',
+          Platform.select({ web: '[a&]:hover:bg-info/90' })
+        ),
+        outline: cn(
+          'border-border bg-transparent',
+          Platform.select({ web: '[a&]:hover:bg-accent [a&]:hover:text-accent-foreground' })
+        ),
       },
     },
     defaultVariants: {
@@ -40,7 +55,10 @@ const badgeTextVariants = cva('text-xs font-medium', {
     variant: {
       default: 'text-primary-foreground',
       secondary: 'text-secondary-foreground',
-      destructive: 'text-white',
+      destructive: 'text-destructive-foreground',
+      success: 'text-success-foreground',
+      warning: 'text-warning-foreground',
+      info: 'text-info-foreground',
       outline: 'text-foreground',
     },
   },

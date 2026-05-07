@@ -6,6 +6,6 @@ export const PRODUCT_STOCK_OPTIONS = [
 
 export const PRODUCT_STATUS_OPTIONS = [
   { value: 'all', label: 'Todos', description: 'Todos los estados' },
-  { value: 'active', label: 'Activos', description: 'Solo Activos' },
-  { value: 'inactive', label: 'Inactivos', description: 'Solo Inactivos' },
+  { value: 'active', label: 'Activo', description: 'Solo Activos' },
+  { value: 'inactive', label: 'Inactivo', description: 'Solo Inactivos' },
 ];
