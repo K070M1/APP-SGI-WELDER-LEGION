@@ -6,6 +6,7 @@ import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native
 
 // Stacks
 import { RootNavigator } from '@/navigation/RootNavigator';
+import { UiOverlayProvider } from '@/shared/contexts/UiOverlayContext';
 
 export default function App() {
   const isDarkMode = useColorScheme() === 'dark';
@@ -18,9 +19,11 @@ export default function App() {
   return (
     <ThemeProvider value={theme}>
       <NavigationContainer>
-        <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={backgroundStyle.backgroundColor} />
-        <RootNavigator />
-        <PortalHost />
+        <UiOverlayProvider>
+          <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={backgroundStyle.backgroundColor} />
+          <RootNavigator />
+          <PortalHost />
+        </UiOverlayProvider>
       </NavigationContainer>
     </ThemeProvider>
   );
