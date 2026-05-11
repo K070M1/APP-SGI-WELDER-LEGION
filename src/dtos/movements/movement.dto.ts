@@ -10,17 +10,18 @@ export type MovementDetailItem = {
   stock_final: number;
   observaciones: string | null;
 };
-
-export type MovementListItem = AuditedEntity & {
+export interface MovementListItem {
   id: string;
   id_movimiento: string;
-  prefijo: string;
-  fecha_registro: string;
-  tipo: 'ENTRADA' | 'SALIDA' | 'AJUSTE';
-  total_productos: number;
-  id_estado: number;
-  estado: string;
-};
+  codigo: string;
+  categoria: 'ENTRADA' | 'SALIDA';
+  motivo: string;
+  entidad_relacionada: string;
+  cantidad_items: number;
+  monto_total: number;
+  fecha_movimiento: string;
+  usuario_creacion: string;
+}
 
 export type MovementDetail = MovementListItem & {
   observaciones: string | null;
