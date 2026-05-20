@@ -23,12 +23,14 @@ export function MovementCard({ movement, onViewDetail }: MovementCardProps) {
 
       <View className="flex-row items-start gap-4 mb-3">
         {/* Ícono de Categoría */}
-        <Avatar alt="avatar" className={`size-14 rounded-2xl border flex items-center justify-center ${isEntrada ? 'bg-emerald-50 border-emerald-100' : 'bg-orange-50 border-orange-100'}`}>
-          <AvatarFallback>
-            <Icon
-              as={isEntrada ? ArrowDownRight : ArrowUpRight}
-              className={`size-6 ${isEntrada ? 'text-emerald-600' : 'text-orange-600'}`}
-            />
+        <Avatar alt="avatar" className={`size-14 rounded-full border border-[#E8E8E8] bg-white flex items-center justify-center ${isEntrada ? 'shadow-sm' : 'shadow-sm'}`}>
+          <AvatarFallback className='border-none'>
+            <View className={`w-full h-full rounded-full flex items-center justify-center ${isEntrada ? 'bg-emerald-50' : 'bg-orange-50'}`}>
+              <Icon
+                as={isEntrada ? ArrowDownRight : ArrowUpRight}
+                className={`size-6 ${isEntrada ? 'text-emerald-600' : 'text-orange-600'}`}
+              />
+            </View>
           </AvatarFallback>
         </Avatar>
 

@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, ScrollView, TextInput, SafeAreaView, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import { View, ScrollView, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, Save, X } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Controller } from 'react-hook-form';
@@ -28,7 +29,7 @@ export function MovementFormScreen() {
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
 
         {/* Cabecera */}
-        <View className="flex-row items-center px-4 pt-20 pb-4 bg-background-secondary border-b border-border">
+        <View className="flex-row items-center px-4 pt-4 pb-4 bg-background-secondary border-b border-border">
           <TouchableOpacity onPress={() => navigation.goBack()} className="p-2 mr-2">
             <Icon as={ChevronLeft} size={24} className="text-foreground" />
           </TouchableOpacity>
@@ -112,11 +113,9 @@ export function MovementFormScreen() {
               />
             </View>
 
-            <View className="border-t border-[#E8E8E8] my-2" />
+            <View className="border-t border-[#E8E8E8] pt-2 pb-2" />
 
             {/* SECCIÓN 2: CARRITO DE PRODUCTOS */}
-            <Text className="text-sm font-bold text-[#333333] mb-4">DETALLE DEL MOVIMIENTO</Text>
-
             <ProductSelector onSelect={addProduct} />
 
             <View className="min-h-[100px] mb-4">

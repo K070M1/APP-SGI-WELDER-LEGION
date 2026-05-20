@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { View, FlatList, TextInput, SafeAreaView, Platform } from 'react-native';
+import { View, FlatList, TextInput, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, Plus, FilterIcon } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 
@@ -147,7 +148,7 @@ export function ProductListScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]">
-      <View className="flex-1 px-4 pt-20">
+      <View className="flex-1 px-4 pt-4">
 
         {/* Cabecera y Título */}
         <View className="flex-row justify-between items-center mb-6">

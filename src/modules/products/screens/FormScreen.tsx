@@ -1,5 +1,6 @@
 ﻿import React from 'react';
-import { View, TextInput, ScrollView, TouchableOpacity, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, TextInput, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
 import { Controller } from 'react-hook-form';
 import { ChevronLeft, MoveLeftIcon, Save } from 'lucide-react-native';
@@ -56,7 +57,7 @@ export function ProductFormScreen() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
       >
-        <View className="flex-row items-center px-4 pt-20 pb-4 bg-white border-b border-[#E8E8E8]">
+        <View className="flex-row items-center px-4 pt-4 pb-4 bg-white border-b border-[#E8E8E8]">
           <TouchableOpacity
             onPress={() => navigation.goBack()}
             className="p-2 mr-2"

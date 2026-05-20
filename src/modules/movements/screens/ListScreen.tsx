@@ -1,6 +1,7 @@
 // src/modules/movements/screens/ListScreen.tsx
 import React from 'react';
-import { View, FlatList, TextInput, SafeAreaView, Platform } from 'react-native';
+import { View, FlatList, TextInput, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, Plus, FilterIcon } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Controller } from 'react-hook-form';
@@ -30,7 +31,7 @@ export function MovementListScreen() {
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]">
-      <View className="flex-1 px-4 pt-20">
+      <View className="flex-1 px-4 pt-4">
 
         {/* Cabecera y Título */}
         <View className="flex-row justify-between items-center mb-6">
@@ -159,6 +160,12 @@ export function MovementListScreen() {
               movement={item}
               onViewDetail={(id) => navigation.navigate(ROUTES.MOVEMENTS.DETAIL, { id })}
             />
+          )}
+          ListEmptyComponent={() => (
+            <View className="mt-10 items-center px-4">
+              <Text className="text-base font-semibold text-[#333333] mb-2">No se encontraron Movimientos</Text>
+              <Text className="text-sm text-[#6B7280] text-center">Ajusta los filtros o intenta con otro término de búsqueda.</Text>
+            </View>
           )}
         />
 
