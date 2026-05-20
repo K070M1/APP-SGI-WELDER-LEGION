@@ -82,9 +82,9 @@ function SelectContent({
               <SelectPrimitive.Content
                 className={cn(
                   // Aquí forzamos bg-white y agregamos una sombra pronunciada
-                  'bg-white border-slate-100 relative z-50 min-w-[8rem] rounded-xl border shadow-lg shadow-black/40',
+                  'bg-white border-slate-100 relative z-50 w-full rounded-xl border shadow-lg shadow-black/40',
                   Platform.select({
-                    native: 'p-1',
+                    native: 'p-2',
                   }),
                   position === 'popper' &&
                   Platform.select({
@@ -100,7 +100,7 @@ function SelectContent({
                 <SelectScrollUpButton />
                 <SelectPrimitive.Viewport
                   className={cn(
-                    'p-1',
+                    'p-2',
                     position === 'popper' &&
                     cn('w-full')
                   )}>

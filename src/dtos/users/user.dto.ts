@@ -1,16 +1,11 @@
-import type { AuditedEntity } from "@/dtos/core/audit.dto";
-
-export type UserListItem = AuditedEntity & {
+export interface UserListItem {
   id: string;
   id_usuario: string;
-  nombre_usuario: string;
+  nombre: string;
+  apellido: string;
   correo: string;
-  id_rol: string;
-  nombre_rol: string;
+  rol: 'ADMIN' | 'ALMACENERO' | 'OPERARIO';
   id_estado: number;
   estado: string;
-};
-
-export type UserDetail = UserListItem & {
-  ultimo_acceso?: string | null;
-};
+  fecha_creacion: string;
+}

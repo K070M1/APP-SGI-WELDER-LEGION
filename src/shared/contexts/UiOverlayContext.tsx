@@ -159,7 +159,7 @@ export function UiOverlayProvider({ children }: { children: ReactNode }) {
 
       {/* Loading Overlay */}
       <Dialog open={loadingOpen} onOpenChange={setLoadingOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-white rounded-[32px] p-6">
+        <DialogContent className="w-[90%] bg-white rounded-[32px] p-6" showClose={true}>
           <DialogHeader>
             <View className="items-center justify-center mb-4">
               <Icon as={Loader} size={64} className="text-slate-400" />
@@ -231,7 +231,7 @@ export function UiOverlayProvider({ children }: { children: ReactNode }) {
 
       {/* QR Modal - Dialog con diseño visual */}
       <Dialog open={alertOpen && alertConfig.isQR} onOpenChange={setAlertOpen}>
-        <DialogContent className="sm:max-w-[425px] bg-white rounded-[32px] p-6">
+        <DialogContent className="w-[90%] bg-white rounded-[32px] p-6" showClose={true}>
           <DialogHeader>
             <DialogTitle className="text-center text-2xl font-extrabold text-slate-900 mt-2">
               {alertConfig.title}

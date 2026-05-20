@@ -46,9 +46,6 @@ export function Pagination({
             </SelectTrigger>
             <SelectContent align="start" sideOffset={8} className="w-28 rounded-xl border-slate-100">
               <SelectGroup>
-                <SelectLabel>
-                  <Text className="font-bold text-slate-900">Registros</Text>
-                </SelectLabel>
                 {[10, 20, 30].map((size) => (
                   <SelectItem key={size} value={String(size)} label={String(size)}>
                     <Text>{size}</Text>

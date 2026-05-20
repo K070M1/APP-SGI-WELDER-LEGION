@@ -59,7 +59,7 @@ export function useMovementList(filters: MovementFilterValues) {
     });
   }, [filters]);
 
-  const pagination = usePagination(filteredMovements.length, 5);
+  const pagination = usePagination(filteredMovements.length, 10);
 
   const paginatedMovements = useMemo(() => {
     const start = (pagination.currentPage - 1) * Number(pagination.pageSize);

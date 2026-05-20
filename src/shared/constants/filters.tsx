@@ -4,6 +4,19 @@ export type FilterOption = {
   description: string;
 };
 
+export const USER_ROLE_OPTIONS = [
+  { value: 'all', label: 'Todos', description: 'Todos los roles' },
+  { value: 'ADMIN', label: 'Administrador', description: 'Acceso total' },
+  { value: 'ALMACENERO', label: 'Almacenero', description: 'Gestión de stock' },
+  { value: 'OPERARIO', label: 'Operario', description: 'Registro básico' },
+];
+
+export const USER_STATUS_OPTIONS = [
+  { value: 'all', label: 'Todos', description: 'Todos los estados' },
+  { value: 'active', label: 'Activo', description: 'Solo Activos' },
+  { value: 'inactive', label: 'Inactivo', description: 'Solo Inactivos' },
+];
+
 export const PRODUCT_STOCK_OPTIONS: FilterOption[] = [
   { value: 'all', label: 'Todos', description: 'Todos los niveles' },
   { value: 'with_stock', label: 'Stock Estable', description: 'Con stock disponible' },

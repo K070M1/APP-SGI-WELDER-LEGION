@@ -13,6 +13,8 @@ import { MovementFormScreen } from '@/modules/movements/screens/FormScreen';
 import { MovementDetailScreen } from '@/modules/movements/screens/DetailScreen';
 import { ScannerScreen } from '@/modules/scanner/screens/ScannerScreen';
 import { ProfileScreen } from '@/modules/profile/screens/ProfileScreen';
+import { UserListScreen } from '@/modules/users/screens/ListScreen';
+import { UserFormScreen } from '@/modules/users/screens/FormScreen';
 
 const Stack = createNativeStackNavigator();
 
@@ -33,6 +35,9 @@ export function RootNavigator() {
 
           {/* 2. PANTALLAS APILADAS (Al abrirse, ocultan los Tabs) */}
           <Stack.Group>
+            <Stack.Screen name={ROUTES.USERS.LIST} component={UserListScreen} />
+            <Stack.Screen name={ROUTES.USERS.FORM} component={UserFormScreen} />
+
             <Stack.Screen name={ROUTES.PRODUCTS.FORM} component={ProductFormScreen} />
             <Stack.Screen name={ROUTES.PRODUCTS.DETAIL} component={ProductDetailScreen} />
 
