@@ -24,7 +24,7 @@ export function RootNavigator() {
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {!isAuthenticated ? (
+      {isAuthenticated ? (
         // FLUJO DESCONECTADO
         <Stack.Screen name={ROUTES.AUTH.LOGIN} component={LoginScreen} />
       ) : (
