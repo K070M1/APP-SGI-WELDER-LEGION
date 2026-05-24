@@ -1,4 +1,3 @@
-// src/modules/movements/components/movement-list/MovementCard.tsx
 import React from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { ArrowDownRight, ArrowUpRight, Eye } from 'lucide-react-native';

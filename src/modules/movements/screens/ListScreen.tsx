@@ -1,4 +1,3 @@
-// src/modules/movements/screens/ListScreen.tsx
 import React from 'react';
 import { View, FlatList, TextInput, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';

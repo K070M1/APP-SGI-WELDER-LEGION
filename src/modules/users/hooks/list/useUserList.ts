@@ -1,4 +1,3 @@
-// src/modules/users/hooks/list/useUserList.ts
 import { useState, useMemo } from 'react';
 import type { UserListItem } from '@/dtos/users/user.dto';
 import { usePagination } from '@/shared/hooks/use-pagination';

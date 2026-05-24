@@ -1,4 +1,3 @@
-// src/modules/users/screens/FormScreen.tsx
 import React, { useState } from 'react';
 import { View, TextInput, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
