@@ -1,8 +1,12 @@
 import React from 'react';
+import { View, ActivityIndicator } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Importamos la lista de rutas
 import { ROUTES } from './routes';
+
+// Importamos el hook de autenticación
+import { useAuth } from '@/shared/hooks/use-auth';
 
 // Importamos las pantallas
 import { MainTabs } from './MainTabs';
@@ -19,13 +23,22 @@ import { UserFormScreen } from '@/modules/users/screens/FormScreen';
 const Stack = createNativeStackNavigator();
 
 export function RootNavigator() {
-  // Cuando integremos Zustand, este valor vendrá del store de autenticación
-  const isAuthenticated = true;
+  // Obtenemos el estado de autenticación desde el store de Zustand
+  const { isAuthenticated, isLoading } = useAuth();
+
+  // Mostramos un loader mientras se restaura el estado desde AsyncStorage
+  if (isLoading) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      {isAuthenticated ? (
-        // FLUJO DESCONECTADO
+      {!isAuthenticated ? (
+        // FLUJO NO AUTENTICADO
         <Stack.Screen name={ROUTES.AUTH.LOGIN} component={LoginScreen} />
       ) : (
         // FLUJO CONECTADO

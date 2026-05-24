@@ -1,20 +1,54 @@
 import React from 'react';
-import { View, TouchableOpacity, ScrollView } from 'react-native';
+import { View, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
-import { ChevronLeft, User, Mail, Shield, ToggleLeft, Calendar } from 'lucide-react-native';
+import { ChevronLeft, User, Mail, Shield, ToggleLeft, Calendar, LogOut } from 'lucide-react-native';
 
 import { Text } from '@/shared/components/ui/text';
 import { Icon } from '@/shared/components/ui/icon';
 import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
 import { Badge } from '@/shared/components/ui/badge';
+import { Button } from '@/shared/components/ui/button';
 import { useProfile } from '../hooks/useProfile';
+import { useAuth } from '@/shared/hooks/use-auth';
+import { getAuth, signOut } from '@react-native-firebase/auth';
 
 export function ProfileScreen() {
   const navigation = useNavigation();
   const { user } = useProfile();
+  const { logout } = useAuth();
+  const auth = getAuth();
 
   const isActive = user.id_estado === 1;
+
+  const handleLogout = () => {
+    Alert.alert(
+      'Cerrar Sesión',
+      '¿Estás seguro de que deseas cerrar sesión?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Sí, cerrar sesión',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              // Cerrar sesión en Firebase
+              await signOut(auth);
+              // Limpiar el store de Zustand
+              logout();
+              console.log('✅ Sesión cerrada correctamente');
+            } catch (error) {
+              console.error('Error al cerrar sesión:', error);
+              Alert.alert('Error', 'No se pudo cerrar sesión');
+            }
+          },
+        },
+      ]
+    );
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]">
@@ -66,6 +100,18 @@ export function ProfileScreen() {
           {/* Rol del Sistema */}
           <View className="bg-white p-4 rounded-2xl border border-[#E8E8E8] flex-row items-center gap-4 shadow-sm">
             <View className="size-10 rounded-xl bg-[#F8FAFC] border border-[#E8E8E8] items-center justify-center">
+
+        {/* BOTÓN DE CERRAR SESIÓN */}
+        <View className="mt-8 mb-6">
+          <Button
+            variant="destructive"
+            onPress={handleLogout}
+            className="w-full rounded-2xl h-14 flex-row items-center justify-center gap-2"
+          >
+            <Icon as={LogOut} size={20} className="text-white" />
+            <Text className="text-white font-semibold">Cerrar Sesión</Text>
+          </Button>
+        </View>
               <Icon as={Shield} size={18} className="text-[#748FFC]" />
             </View>
             <View className="flex-1">

@@ -11,32 +11,70 @@ import { Label } from '@/shared/components/ui/label';
 import { Separator } from '@/shared/components/ui/separator';
 import { Text } from '@/shared/components/ui/text';
 import * as React from 'react';
-import { Pressable, type TextInput, View } from 'react-native';
+import { Pressable, type TextInput, View, Alert } from 'react-native';
 
-import { getAuth, signInWithEmailAndPassword } from '@react-native-firebase/auth'
+import { getAuth, signInWithEmailAndPassword } from '@react-native-firebase/auth';
+import { useAuth } from '@/shared/hooks/use-auth';
 
 export function SignInForm() {
   const passwordInputRef = React.useRef<TextInput>(null);
   const [email, setEmail] = React.useState('');
   const [password, setPassword] = React.useState('');
+  const [isLoading, setIsLoading] = React.useState(false);
+
   const auth = getAuth();
+  const { login } = useAuth();
 
   function onEmailSubmitEditing() {
     passwordInputRef.current?.focus();
   }
 
   async function onSubmit() {
+    if (!email || !password) {
+      Alert.alert('Error', 'Por favor ingresa tu correo y contraseña');
+      return;
+    }
+
+    setIsLoading(true);
     try {
       const res = await signInWithEmailAndPassword(auth, email, password);
       console.log('==> Respuesta:', res);
-      if(res.user) {
-        console.log('Usuario:', res.user);
-        console.log('Token:', await res.user.getIdToken());
-      }else {
-        console.log('Usuario no encontrado');
+
+      if (res.user) {
+        const user = res.user;
+        const token = await user.getIdToken();
+
+        // Guardamos el usuario y token en el store de Zustand
+        login(
+          {
+            id: user?.uid,
+            email: user?.email || '',
+            nombre: user?.displayName || undefined,
+          },
+          token
+        );
+
+        console.log('✅ Usuario autenticado correctamente');
+      } else {
+        Alert.alert('Error', 'Usuario no encontrado');
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error signing in:', error);
+
+      let errorMessage = 'Ocurrió un error al iniciar sesión';
+      if (error.code === 'auth/invalid-credential') {
+        errorMessage = 'Correo o contraseña incorrectos';
+      } else if (error.code === 'auth/user-not-found') {
+        errorMessage = 'Usuario no encontrado';
+      } else if (error.code === 'auth/wrong-password') {
+        errorMessage = 'Contraseña incorrecta';
+      } else if (error.code === 'auth/too-many-requests') {
+        errorMessage = 'Demasiados intentos. Intenta más tarde';
+      }
+
+      Alert.alert('Error de autenticación', errorMessage);
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -89,8 +127,8 @@ export function SignInForm() {
                 onChangeText={setPassword}
               />
             </View>
-            <Button className="w-full" onPress={onSubmit}>
-              <Text>Continuar</Text>
+            <Button className="w-full" onPress={onSubmit} disabled={isLoading}>
+              <Text>{isLoading ? 'Iniciando sesión...' : 'Continuar'}</Text>
             </Button>
           </View>
           <Text className="text-center text-sm">
