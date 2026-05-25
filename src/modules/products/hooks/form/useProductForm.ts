@@ -16,7 +16,6 @@ export function useProductForm() {
       if (!response.isOk()) return null;
       return response.data;
     } catch (error) {
-      console.error('useProductForm load error:', error);
       return null;
     } finally {
       setIsLoading(false);
@@ -35,7 +34,6 @@ export function useProductForm() {
       const response = await productService.createProduct(values as ProductCreateFormValues);
       return response.isOk();
     } catch (error) {
-      console.error('useProductForm save error:', error);
       return false;
     } finally {
       setIsSubmitting(false);

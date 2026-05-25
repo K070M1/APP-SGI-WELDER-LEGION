@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, FlatList, TextInput, Platform, TouchableOpacity } from 'react-native';
+import { View, FlatList, TextInput, Platform, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, Plus, FilterIcon, Edit, Trash2, Mail, Shield, ToggleLeft, X } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -22,6 +22,7 @@ export function UserListScreen() {
 
   const {
     users,
+    isLoading,
     searchQuery,
     setSearchQuery,
     roleFilter,
@@ -32,9 +33,15 @@ export function UserListScreen() {
     isDetailOpen,
     setIsDetailOpen,
     handleOpenDetail,
+    handleDeleteUser,
     handleClearFilters,
+    loadUsers,
     pagination,
   } = useUserList();
+
+  const handleEdit = (userId: string) => {
+    navigation.navigate(ROUTES.USERS.FORM, { id: userId });
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]">
@@ -104,30 +111,69 @@ export function UserListScreen() {
           </View>
 
           <View className="flex-row gap-2 mt-1">
-            <Button variant="outline" className="flex-1 rounded-xl border-[#E8E8E8] h-10 flex-row items-center justify-center bg-white" onPress={handleClearFilters}>
+            <Button 
+              variant="outline" 
+              className="flex-1 rounded-xl border-[#E8E8E8] h-10 flex-row items-center justify-center bg-white" 
+              onPress={handleClearFilters}
+              disabled={isLoading}
+            >
               <Icon as={FilterIcon} className="size-4 text-[#333333] mr-2" />
               <Text className="text-[#333333] font-bold text-xs">Limpiar</Text>
             </Button>
-            <Button className="flex-1 rounded-xl h-10 flex-row items-center justify-center bg-[#748FFC]" onPress={() => console.log('Buscando...')}>
-              <Icon as={Search} className="size-4 text-white mr-2" />
-              <Text className="text-white font-bold text-xs">Buscar</Text>
+            <Button 
+              className="flex-1 rounded-xl h-10 flex-row items-center justify-center bg-[#748FFC]" 
+              onPress={loadUsers}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <ActivityIndicator size="small" color="#FFFFFF" />
+              ) : (
+                <>
+                  <Icon as={Search} className="size-4 text-white mr-2" />
+                  <Text className="text-white font-bold text-xs">Buscar</Text>
+                </>
+              )}
             </Button>
           </View>
         </View>
 
         {/* Grid de 2 Columnas - SCROLLABLE */}
-        <FlatList
-          data={users}
-          keyExtractor={(item) => item.id}
-          numColumns={2}
-          columnWrapperClassName="justify-center"
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
-          scrollEnabled={true}
-          renderItem={({ item }) => (
-            <UserGridCard user={item} onPress={() => handleOpenDetail(item)} />
-          )}
-        />
+        {isLoading ? (
+          <View className="flex-1 items-center justify-center py-20">
+            <ActivityIndicator size="large" color="#748FFC" />
+            <Text className="text-lg font-bold text-[#748FFC] mt-4 mb-2">Cargando usuarios...</Text>
+            <Text className="text-sm text-[#999999]">Por favor espera</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={users}
+            keyExtractor={(item) => item.id}
+            numColumns={2}
+            columnWrapperClassName="justify-center"
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
+            scrollEnabled={true}
+            ListEmptyComponent={
+              <View className="flex-1 items-center justify-center py-20">
+                <Icon as={Search} size={64} className="text-[#E8E8E8] mb-4" />
+                <Text className="text-lg font-bold text-[#999999] mb-2">No se encontraron usuarios</Text>
+                <Text className="text-sm text-[#CCCCCC] text-center px-8">
+                  {searchQuery || roleFilter.value !== 'all' || statusFilter.value !== 'all'
+                    ? 'Intenta ajustar los filtros de búsqueda'
+                    : 'Aún no hay usuarios registrados en el sistema'}
+                </Text>
+              </View>
+            }
+            renderItem={({ item }) => (
+              <UserGridCard
+                user={item}
+                onPress={() => handleOpenDetail(item)}
+                onEdit={handleEdit}
+                onDelete={handleDeleteUser}
+              />
+            )}
+          />
+        )}
 
         <View className="border-t border-slate-200 mt-5 mb-2" />
 
@@ -163,8 +209,8 @@ export function UserListScreen() {
           {/* Cuerpo del Detalle */}
           <View className="gap-3 py-4 mt-2">
             <View className="bg-[#F8FAFC] p-3 rounded-2xl border border-[#E8E8E8]">
-              <Text className="text-[10px] font-bold text-[#999999] tracking-wider uppercase mb-1">Nombre Completo</Text>
-              <Text className="text-base font-bold text-[#333333]">{selectedUser?.nombre} {selectedUser?.apellido}</Text>
+              <Text className="text-[10px] font-bold text-[#999999] tracking-wider uppercase mb-1">Nombre de Usuario</Text>
+              <Text className="text-base font-bold text-[#333333]">{selectedUser?.nombre_usuario}</Text>
             </View>
 
             <View className="bg-[#F8FAFC] p-3 rounded-2xl border border-[#E8E8E8] flex-row items-center gap-3">
@@ -185,10 +231,10 @@ export function UserListScreen() {
               </View>
 
               <View className="flex-1 bg-[#F8FAFC] p-3 rounded-2xl border border-[#E8E8E8] flex-row items-center gap-2">
-                <Icon as={ToggleLeft} size={16} className={selectedUser?.id_estado === 1 ? 'text-emerald-500' : 'text-slate-400'} />
+                <Icon as={ToggleLeft} size={16} className={selectedUser?.estado === 1 ? 'text-emerald-500' : 'text-slate-400'} />
                 <View>
                   <Text className="text-[10px] font-bold text-[#999999] tracking-wider uppercase">Estado</Text>
-                  <Text className="text-xs font-bold text-[#333333]">{selectedUser?.estado}</Text>
+                  <Text className="text-xs font-bold text-[#333333]">{selectedUser?.estado === 1 ? 'Activo' : 'Inactivo'}</Text>
                 </View>
               </View>
             </View>
@@ -210,7 +256,7 @@ export function UserListScreen() {
               className="flex-1 border-[#E8E8E8] h-11 rounded-xl flex-row items-center justify-center bg-white"
               onPress={() => {
                 setIsDetailOpen(false);
-                navigation.navigate(ROUTES.USERS.FORM, { id: selectedUser?.id_usuario });
+                navigation.navigate(ROUTES.USERS.FORM, { id: selectedUser?.id });
               }}
             >
               <Icon as={Edit} size={16} className="text-[#333333] mr-2" />
@@ -220,8 +266,10 @@ export function UserListScreen() {
             <Button
               className="flex-1 bg-[#FF8787] h-11 rounded-xl flex-row items-center justify-center"
               onPress={() => {
-                console.log('Eliminando usuario:', selectedUser?.id_usuario);
-                setIsDetailOpen(false);
+                if (selectedUser?.id) {
+                  setIsDetailOpen(false);
+                  handleDeleteUser(selectedUser.id);
+                }
               }}
             >
               <Icon as={Trash2} size={16} className="text-white mr-2" />

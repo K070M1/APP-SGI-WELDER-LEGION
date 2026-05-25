@@ -73,7 +73,7 @@ export function ProductListScreen() {
 
   // --- FUNCIONES DE FILTRO ---
   const handleSearch = () => {
-    console.log('Buscando con:', { query: searchQuery, stock: stockFilter.value, status: statusFilter.value });
+    // TODO: Implementar búsqueda
   };
 
   const handleClearFilters = () => {

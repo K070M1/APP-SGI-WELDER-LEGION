@@ -1,16 +1,12 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
+import { Alert } from 'react-native';
 import type { UserListItem } from '@/dtos/users/user.dto';
 import { usePagination } from '@/shared/hooks/use-pagination';
-
-const INITIAL_MOCK_USERS: UserListItem[] = [
-  { id: '1', id_usuario: 'u-001', nombre: 'Jomar', apellido: 'García', correo: 'jomar@welderlegion.com', rol: 'ADMIN', id_estado: 1, estado: 'ACTIVO', fecha_creacion: '2026-01-10' },
-  { id: '2', id_usuario: 'u-002', nombre: 'Carlos', apellido: 'Mendoza', correo: 'carlos.m@welderlegion.com', rol: 'ALMACENERO', id_estado: 1, estado: 'ACTIVO', fecha_creacion: '2026-02-15' },
-  { id: '3', id_usuario: 'u-003', nombre: 'Luis', apellido: 'Pinedo', correo: 'luis.p@welderlegion.com', rol: 'OPERARIO', id_estado: 0, estado: 'INACTIVO', fecha_creacion: '2026-03-20' },
-  { id: '4', id_usuario: 'u-004', nombre: 'Ana', apellido: 'Ramos', correo: 'ana.r@welderlegion.com', rol: 'OPERARIO', id_estado: 1, estado: 'ACTIVO', fecha_creacion: '2026-04-02' },
-];
+import { userService } from '@/api/user/user.service';
 
 export function useUserList() {
-  const [users] = useState<UserListItem[]>(INITIAL_MOCK_USERS);
+  const [users, setUsers] = useState<UserListItem[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState({ value: 'all', label: 'Todos' });
   const [statusFilter, setStatusFilter] = useState({ value: 'all', label: 'Todos' });
@@ -21,10 +17,34 @@ export function useUserList() {
 
   const pagination = usePagination(users.length, 10);
 
+  // Cargar usuarios al iniciar
+  useEffect(() => {
+    loadUsers();
+  }, []); // Solo cargar una vez al montar el componente
+
+  const loadUsers = async () => {
+    setIsLoading(true);
+    try {
+      const result = await userService.getUsers({
+        buscar: searchQuery,
+        rol: roleFilter.value,
+        estado: statusFilter.value,
+      });
+
+      setUsers(result.data || []);
+    } catch (error: any) {
+      Alert.alert('Error', 'No se pudieron cargar los usuarios');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleClearFilters = () => {
     setSearchQuery('');
     setRoleFilter({ value: 'all', label: 'Todos' });
     setStatusFilter({ value: 'all', label: 'Todos' });
+    // Recargar con filtros limpios
+    setTimeout(() => loadUsers(), 100);
   };
 
   const handleOpenDetail = (user: UserListItem) => {
@@ -32,7 +52,33 @@ export function useUserList() {
     setIsDetailOpen(true);
   };
 
-  // Paginación local sobre el mock
+  const handleDeleteUser = (userId: string) => {
+    Alert.alert(
+      'Confirmar eliminación',
+      '¿Estás seguro de que deseas eliminar este usuario? Esta acción no se puede deshacer.',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Eliminar',
+          style: 'destructive',
+          onPress: async () => {
+            try {
+              await userService.deleteUser(userId);
+              Alert.alert('Éxito', 'Usuario eliminado correctamente');
+              loadUsers(); // Recargar lista
+            } catch (error: any) {
+              Alert.alert('Error', error.message || 'No se pudo eliminar el usuario');
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  // Paginación local
   const paginatedUsers = useMemo(() => {
     const start = (pagination.currentPage - 1) * Number(pagination.pageSize);
     const end = pagination.currentPage * Number(pagination.pageSize);
@@ -41,6 +87,7 @@ export function useUserList() {
 
   return {
     users: paginatedUsers,
+    isLoading,
     searchQuery,
     setSearchQuery,
     roleFilter,
@@ -51,7 +98,9 @@ export function useUserList() {
     isDetailOpen,
     setIsDetailOpen,
     handleOpenDetail,
+    handleDeleteUser,
     handleClearFilters,
+    loadUsers,
     pagination,
   };
 }

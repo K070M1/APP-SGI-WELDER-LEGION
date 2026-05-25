@@ -22,7 +22,9 @@ export function MovementFormScreen() {
 
   const availableMotives = MOVEMENT_MOTIVES[currentCategory] || MOVEMENT_MOTIVES['all'];
 
-  const onSubmit = (data: MovementFormValues) => console.log('Enviando Movimiento:', data);
+  const onSubmit = (data: MovementFormValues) => {
+    // TODO: Implementar envío
+  };
 
   return (
     <SafeAreaView className="flex-1 bg-background">

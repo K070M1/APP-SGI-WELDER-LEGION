@@ -7,8 +7,8 @@ const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*(),.?":{}|<>
 const userBaseSchema = z.object({
   nombre_usuario: zodCommonString(),
   correo: zodCommonString().email('Correo inválido'),
-  id_rol: z.string().min(1, 'Obligatorio'),
-  id_estado: z.coerce.number().min(0, 'Obligatorio'), // Permitir 0 (Inactivo) y 1 (Activo)
+  rol: z.string().min(1, 'Obligatorio'),
+  estado: z.coerce.number().min(0, 'Obligatorio'), // Permitir 0 (Inactivo) y 1 (Activo)
 });
 
 export const userCreateSchema = userBaseSchema.extend({
@@ -39,8 +39,8 @@ export const userUpdateSchema = userBaseSchema.extend({
 
 export const userFilterSchema = z.object({
   buscar: z.string().optional(),
-  id_rol: z.string().optional(),
-  id_estado: z.string().optional(),
+  rol: z.string().optional(),
+  estado: z.string().optional(),
 });
 
 export type UserCreateFormValues = z.infer<typeof userCreateSchema>;
