@@ -12,9 +12,12 @@ import { Separator } from '@/shared/components/ui/separator';
 import { Text } from '@/shared/components/ui/text';
 import * as React from 'react';
 import { Pressable, type TextInput, View, Alert } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 import { getAuth, signInWithEmailAndPassword } from '@react-native-firebase/auth';
 import { useAuth } from '@/shared/hooks/use-auth';
+import { userService } from '@/api/user/user.service';
+import { ROUTES } from '@/navigation/routes';
 
 export function SignInForm() {
   const passwordInputRef = React.useRef<TextInput>(null);
@@ -24,6 +27,7 @@ export function SignInForm() {
 
   const auth = getAuth();
   const { login } = useAuth();
+  const navigation = useNavigation<any>();
 
   function onEmailSubmitEditing() {
     passwordInputRef.current?.focus();
@@ -37,30 +41,45 @@ export function SignInForm() {
 
     setIsLoading(true);
     try {
+      // 1. Autenticar con Firebase
       const res = await signInWithEmailAndPassword(auth, email, password);
-      console.log('==> Respuesta:', res);
 
       if (res.user) {
-        const user = res.user;
-        const token = await user.getIdToken();
+        const firebaseUser = res.user;
+        const token = await firebaseUser.getIdToken();
 
-        // Guardamos el usuario y token en el store de Zustand
-        login(
-          {
-            id: user?.uid,
-            email: user?.email || '',
-            nombre: user?.displayName || undefined,
-          },
-          token
-        );
+        // 2. Obtener datos del usuario desde InsForge DB
+        try {
+          const userData = await userService.getUserByUuid(firebaseUser.uid);
 
-        console.log('✅ Usuario autenticado correctamente');
+          // 3. Guardar en el store de Zustand con datos completos
+          login(
+            {
+              id: userData.id, // UUID de InsForge (el ID real de la tabla)
+              firebaseUid: firebaseUser.uid, // UID de Firebase Auth
+              email: userData.correo,
+              nombreUsuario: userData.nombre_usuario,
+              rol: userData.rol,
+              perfil: userData.perfil,
+            },
+            token
+          );
+        } catch (dbError: any) {
+          // Si no se encuentra en la BD, usar solo datos de Firebase
+          login(
+            {
+              id: firebaseUser.uid, // Temporal: usar Firebase UID hasta que se cree en DB
+              firebaseUid: firebaseUser.uid,
+              email: firebaseUser.email || '',
+              nombreUsuario: firebaseUser.displayName || undefined,
+            },
+            token
+          );
+        }
       } else {
         Alert.alert('Error', 'Usuario no encontrado');
       }
     } catch (error: any) {
-      console.error('Error signing in:', error);
-
       let errorMessage = 'Ocurrió un error al iniciar sesión';
       if (error.code === 'auth/invalid-credential') {
         errorMessage = 'Correo o contraseña incorrectos';
@@ -112,7 +131,7 @@ export function SignInForm() {
                   size="sm"
                   className="web:h-fit ml-auto h-4 px-1 py-0 sm:h-4"
                   onPress={() => {
-                    // TODO: Navigate to forgot password screen
+                    navigation.navigate(ROUTES.AUTH.FORGOT_PASSWORD);
                   }}>
                   <Text className="font-normal leading-4">¿Olvidaste tu contraseña?</Text>
                 </Button>

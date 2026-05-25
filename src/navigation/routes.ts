@@ -1,6 +1,7 @@
 export const ROUTES = {
   AUTH: {
     LOGIN: 'Auth_Login',
+    FORGOT_PASSWORD: 'Auth_ForgotPassword',
   },
   MAIN: {
     TABS: 'Main_Tabs',
@@ -24,5 +25,6 @@ export const ROUTES = {
   },
   PROFILE: {
     MAIN: 'Profile_Main',
+    EDIT: 'Profile_Edit',
   }
 } as const;

@@ -33,6 +33,10 @@ yarn-error.*
 # local env files
 .env*.local
 
+# Firebase credentials (stored in InsForge secrets)
+*firebase*admin*.json
+firebase-admin-credentials.json
+
 # typescript
 *.tsbuildinfo
 
@@ -40,3 +44,18 @@ yarn-error.*
 /ios
 /android
 google-services.json
+
+# InsForge & AI agent skills
+.insforge
+.agent
+.agents
+.augment
+.claude
+.cline
+.github/copilot*
+.kilocode
+.qoder
+.qwen
+.roo
+.trae
+.windsurf

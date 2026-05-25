@@ -47,7 +47,6 @@ export function ProductFormScreen() {
   const statusOptions = useProductStateSelect();
 
   const onSubmit = (data: unknown) => {
-    console.log('Datos listos:', data);
     navigation.goBack();
   };
 

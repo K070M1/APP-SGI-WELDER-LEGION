@@ -1,10 +1,11 @@
 import React from 'react';
-import { View } from 'react-native';
+import { View, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { LogOutIcon, SettingsIcon } from 'lucide-react-native';
 import type { TriggerRef } from '@rn-primitives/popover';
+import { getAuth, signOut } from '@react-native-firebase/auth';
 
-import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { Button } from '@/shared/components/ui/button';
 import { Icon } from '@/shared/components/ui/icon';
 import { Text } from '@/shared/components/ui/text';
@@ -14,26 +15,69 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/shared/components/ui/popover';
+import { useAuth } from '@/shared/hooks/use-auth';
 
-// Ya no necesitamos onNavigateSettings en las props
 interface UserMenuProps {
   children: React.ReactNode; // El icono que pasaremos desde el Tab
-  onSignOut?: () => void;
 }
 
-const USER = {
-  fullName: 'Jomar Peralta',
-  initials: 'JP',
-  username: 'admin_welder',
-};
-
-export function UserMenu({ children, onSignOut }: UserMenuProps) {
+export function UserMenu({ children }: UserMenuProps) {
   const popoverTriggerRef = React.useRef<TriggerRef>(null);
   const navigation = useNavigation<any>();
+  const { user, logout } = useAuth();
+  const auth = getAuth();
 
-  function handleSignOut() {
-    popoverTriggerRef.current?.close();
-    if (onSignOut) onSignOut();
+  // Generar iniciales del nombre
+  const getInitials = (name?: string, email?: string): string => {
+    if (name) {
+      const names = name.trim().split(' ');
+      if (names.length >= 2) {
+        return `${names[0][0]}${names[1][0]}`.toUpperCase();
+      }
+      return names[0].substring(0, 2).toUpperCase();
+    }
+    if (email) {
+      return email.substring(0, 2).toUpperCase();
+    }
+    return 'U';
+  };
+
+  const initials = getInitials(user?.nombreUsuario, user?.email);
+  const displayName = user?.nombreUsuario || user?.email?.split('@')[0] || 'Usuario';
+  const username = user?.email || '';
+
+  async function handleSignOut() {
+    try {
+      popoverTriggerRef.current?.close();
+
+      Alert.alert(
+        'Cerrar sesión',
+        '¿Estás seguro de que deseas salir?',
+        [
+          {
+            text: 'Cancelar',
+            style: 'cancel',
+          },
+          {
+            text: 'Salir',
+            style: 'destructive',
+            onPress: async () => {
+              try {
+                // 1. Cerrar sesión en Firebase
+                await signOut(auth);
+                
+                // 2. Limpiar el estado de Zustand
+                logout();
+              } catch (error: any) {
+                Alert.alert('Error', 'No se pudo cerrar la sesión. Intenta de nuevo.');
+              }
+            },
+          },
+        ]
+      );
+    } catch (error) {
+      // Error silencioso
+    }
   }
 
   function handleSettings() {
@@ -43,10 +87,6 @@ export function UserMenu({ children, onSignOut }: UserMenuProps) {
 
   return (
     <Popover>
-      {/* 
-        Al quitar 'asChild' y usar el className aquí, convertimos el Trigger 
-        en el contenedor principal que agrupa tu icono y el texto CUENTA.
-      */}
       <PopoverTrigger ref={popoverTriggerRef} className="flex-col items-center justify-center pt-2">
         {children}
         <Text className="text-[10px] font-medium text-[#8E8E93] mt-1">CUENTA</Text>
@@ -58,14 +98,17 @@ export function UserMenu({ children, onSignOut }: UserMenuProps) {
           {/* Cabecera del Popover: Avatar y Datos */}
           <View className="flex-row items-center gap-3">
             <Avatar alt="Avatar" className="size-10 bg-[#748FFC]/10 border border-[#748FFC]/20">
+              {user?.perfil && (
+                <AvatarImage source={{ uri: user.perfil }} />
+              )}
               <AvatarFallback>
-                <Text className="text-[#748FFC] font-bold">{USER.initials}</Text>
+                <Text className="text-[#748FFC] font-bold">{initials}</Text>
               </AvatarFallback>
             </Avatar>
             <View className="flex-1">
-              <Text className="font-bold leading-5 text-[#333333]">{USER.fullName}</Text>
+              <Text className="font-bold leading-5 text-[#333333]">{displayName}</Text>
               <Text className="text-muted-foreground text-xs font-normal leading-4">
-                {USER.username}
+                {username}
               </Text>
             </View>
           </View>

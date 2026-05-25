@@ -18,7 +18,7 @@ export function UserFormScreen() {
   const route = useRoute<any>();
   const idUsuario = route.params?.id;
 
-  const { form, isEditing, onSubmit } = useUserForm(idUsuario);
+  const { form, isEditing, onSubmit, isLoading } = useUserForm(idUsuario);
 
   // Estados locales para alternar la visualización de las contraseñas
   const [secureText, setSecureText] = useState(true);
@@ -100,27 +100,30 @@ export function UserFormScreen() {
               <Text className="text-xs font-bold text-[#333333] mb-2">ROL DE SISTEMA</Text>
               <Controller
                 control={form.control}
-                name="id_rol"
-                render={({ field: { onChange, value } }) => (
-                  <Select value={{ value, label: value }} onValueChange={(opt: any) => onChange(opt.value)}>
-                    <SelectTrigger className="rounded-xl bg-white border border-[#E8E8E8] h-12">
-                      <SelectValue placeholder="Selecciona un rol" />
-                    </SelectTrigger>
-                    <SelectContent align="center" sideOffset={8} className="w-full rounded-xl border-[#E8E8E8]">
-                      <SelectGroup>
-                        <SelectLabel><Text className="font-bold text-[#333333]">Roles</Text></SelectLabel>
-                        {USER_ROLE_OPTIONS.filter(r => r.value !== 'all').map((opt) => (
-                          <SelectItem key={opt.value} value={opt.value} label={opt.label}>
-                            <Text>{opt.label}</Text>
-                          </SelectItem>
-                        ))}
-                      </SelectGroup>
-                    </SelectContent>
-                  </Select>
-                )}
+                name="rol"
+                render={({ field: { onChange, value } }) => {
+                  const selectedOption = USER_ROLE_OPTIONS.find(opt => opt.value === value);
+                  return (
+                    <Select value={{ value, label: selectedOption?.label || '' }} onValueChange={(opt: any) => onChange(opt.value)}>
+                      <SelectTrigger className="rounded-xl bg-white border border-[#E8E8E8] h-12">
+                        <SelectValue placeholder="Selecciona un rol" />
+                      </SelectTrigger>
+                      <SelectContent align="center" sideOffset={8} className="w-full rounded-xl border-[#E8E8E8]">
+                        <SelectGroup>
+                          <SelectLabel><Text className="font-bold text-[#333333]">Roles</Text></SelectLabel>
+                          {USER_ROLE_OPTIONS.filter(r => r.value !== 'all').map((opt) => (
+                            <SelectItem key={opt.value} value={opt.value} label={opt.label}>
+                              <Text>{opt.label}</Text>
+                            </SelectItem>
+                          ))}
+                        </SelectGroup>
+                      </SelectContent>
+                    </Select>
+                  );
+                }}
               />
-              {form.formState.errors.id_rol && (
-                <Text className="text-[#FF8787] text-xs mt-1">{form.formState.errors.id_rol.message as string}</Text>
+              {form.formState.errors.rol && (
+                <Text className="text-[#FF8787] text-xs mt-1">{form.formState.errors.rol.message as string}</Text>
               )}
             </View>
 
@@ -129,11 +132,12 @@ export function UserFormScreen() {
               <Text className="text-xs font-bold text-[#333333] mb-2">ESTADO DE CUENTA</Text>
               <Controller
                 control={form.control}
-                name="id_estado"
+                name="estado"
                 render={({ field: { onChange, value } }) => {
                   const stringValue = value === 1 ? 'active' : 'inactive';
+                  const selectedOption = USER_STATUS_OPTIONS.find(opt => opt.value === stringValue);
                   return (
-                    <Select value={{ value: stringValue, label: '' }} onValueChange={(opt: any) => onChange(opt.value === 'active' ? 1 : 0)}>
+                    <Select value={{ value: stringValue, label: selectedOption?.label || '' }} onValueChange={(opt: any) => onChange(opt.value === 'active' ? 1 : 0)}>
                       <SelectTrigger className="rounded-xl bg-white border border-[#E8E8E8] h-12">
                         <SelectValue placeholder="Selecciona un estado" />
                       </SelectTrigger>
@@ -151,8 +155,8 @@ export function UserFormScreen() {
                   );
                 }}
               />
-              {form.formState.errors.id_estado && (
-                <Text className="text-[#FF8787] text-xs mt-1">{form.formState.errors.id_estado.message as string}</Text>
+              {form.formState.errors.estado && (
+                <Text className="text-[#FF8787] text-xs mt-1">{form.formState.errors.estado.message as string}</Text>
               )}
             </View>
           </View>
@@ -228,6 +232,7 @@ export function UserFormScreen() {
             <Button
               variant="outline"
               onPress={() => navigation.goBack()}
+              disabled={isLoading}
               className="flex-1 h-12 rounded-xl bg-white border border-[#E8E8E8] flex-row items-center justify-center"
             >
               <Text className="text-[#333333] font-bold">Cancelar</Text>
@@ -235,12 +240,19 @@ export function UserFormScreen() {
 
             <Button
               onPress={form.handleSubmit(onSubmit)}
+              disabled={isLoading}
               className="flex-1 bg-[#748FFC] h-12 rounded-xl flex-row items-center justify-center"
             >
-              <Icon as={Save} size={20} className="text-white mr-2" />
-              <Text className="text-white font-bold">
-                {isEditing ? 'Guardar' : 'Crear'}
-              </Text>
+              {isLoading ? (
+                <Text className="text-white font-bold">Guardando...</Text>
+              ) : (
+                <>
+                  <Icon as={Save} size={20} className="text-white mr-2" />
+                  <Text className="text-white font-bold">
+                    {isEditing ? 'Guardar' : 'Crear'}
+                  </Text>
+                </>
+              )}
             </Button>
           </View>
 

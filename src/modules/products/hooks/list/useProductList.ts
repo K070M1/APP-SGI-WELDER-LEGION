@@ -32,7 +32,6 @@ export function useProductList(options?: { onError?: (message: string) => void }
       setProducts(response.data ?? []);
       setTotal(response.total ?? 0);
     } catch (error) {
-      console.error('useProductList search error:', error);
       options?.onError?.('Error al cargar productos');
       setProducts([]);
       setTotal(0);

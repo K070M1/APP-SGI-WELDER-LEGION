@@ -11,12 +11,14 @@ import { useAuth } from '@/shared/hooks/use-auth';
 // Importamos las pantallas
 import { MainTabs } from './MainTabs';
 import { LoginScreen } from '@/modules/auth/screens/LoginScreen';
+import { ForgotPasswordScreen } from '@/modules/auth/screens/ForgotPasswordScreen';
 import { ProductFormScreen } from '@/modules/products/screens/FormScreen';
 import { ProductDetailScreen } from '@/modules/products/screens/DetailScreen';
 import { MovementFormScreen } from '@/modules/movements/screens/FormScreen';
 import { MovementDetailScreen } from '@/modules/movements/screens/DetailScreen';
 import { ScannerScreen } from '@/modules/scanner/screens/ScannerScreen';
 import { ProfileScreen } from '@/modules/profile/screens/ProfileScreen';
+import { EditProfileScreen } from '@/modules/profile/screens/EditProfileScreen';
 import { UserListScreen } from '@/modules/users/screens/ListScreen';
 import { UserFormScreen } from '@/modules/users/screens/FormScreen';
 
@@ -39,7 +41,10 @@ export function RootNavigator() {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       {!isAuthenticated ? (
         // FLUJO NO AUTENTICADO
-        <Stack.Screen name={ROUTES.AUTH.LOGIN} component={LoginScreen} />
+        <>
+          <Stack.Screen name={ROUTES.AUTH.LOGIN} component={LoginScreen} />
+          <Stack.Screen name={ROUTES.AUTH.FORGOT_PASSWORD} component={ForgotPasswordScreen} />
+        </>
       ) : (
         // FLUJO CONECTADO
         <>
@@ -58,6 +63,7 @@ export function RootNavigator() {
             <Stack.Screen name={ROUTES.MOVEMENTS.DETAIL} component={MovementDetailScreen} />
 
             <Stack.Screen name={ROUTES.PROFILE.MAIN} component={ProfileScreen} />
+            <Stack.Screen name={ROUTES.PROFILE.EDIT} component={EditProfileScreen} />
           </Stack.Group>
 
           {/* 3. MODALES / CÁMARA (Opcional: podemos darle animaciones distintas a este grupo) */}

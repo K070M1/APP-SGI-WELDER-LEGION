@@ -17,8 +17,6 @@ export function useLoginForm() {
   // Esta función se ejecutará SOLO si las validaciones de Zod pasan
   const onSubmit = async (values: LoginFormValues) => {
     try {
-      console.log('Datos validados listos para enviar:', values);
-
       // TODO: Aquí inyectaremos el llamado a auth.service.ts
       // await authService.login(values);
 
@@ -27,7 +25,6 @@ export function useLoginForm() {
 
       return true;
     } catch (error) {
-      console.error('Error en el login:', error);
       return false;
     }
   };

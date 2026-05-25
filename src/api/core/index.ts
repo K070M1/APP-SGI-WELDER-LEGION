@@ -68,7 +68,6 @@ export async function getList<T>(
       total: response.data?.total ?? 0,
     };
   } catch (error: any) {
-    console.error('getList error:', error);
     return {
       isOk: () => false,
       isNoData: () => false,
@@ -100,7 +99,6 @@ export async function getOne<T>(
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
-    console.error('getOne error:', error);
     return {
       isOk: () => false,
       getMessage: () => 'Error al obtener dato',
@@ -131,7 +129,6 @@ export async function postAndGetOne<T>(
       data: response.data?.data ?? null,
     };
   } catch (error: any) {
-    console.error('postAndGetOne error:', error);
     return {
       isOk: () => false,
       getMessage: () => 'Error al crear recurso',
@@ -156,7 +153,6 @@ export async function putOne(
     const response = await axiosInstance.put(url, data, config);
     return new CheckStatus(response.data);
   } catch (error: any) {
-    console.error('putOne error:', error);
     const checkStatus = new CheckStatus();
     checkStatus.setAxiosError(error);
     return checkStatus;
@@ -178,7 +174,6 @@ export async function deleteOne(
     const response = await axiosInstance.delete(url, config);
     return new CheckStatus(response.data);
   } catch (error: any) {
-    console.error('deleteOne error:', error);
     const checkStatus = new CheckStatus();
     checkStatus.setAxiosError(error);
     return checkStatus;

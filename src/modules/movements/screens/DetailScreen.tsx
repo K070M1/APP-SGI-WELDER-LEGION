@@ -131,7 +131,9 @@ export function MovementDetailScreen() {
           </Button>
 
           <Button
-            onPress={() => console.log('Descargando PDF...')}
+            onPress={() => {
+              // TODO: Implementar descarga PDF
+            }}
             className="flex-1 bg-[#748FFC] h-14 rounded-2xl flex-row items-center justify-center shadow-sm"
           >
             <Icon as={Download} size={20} className="text-white mr-2" />

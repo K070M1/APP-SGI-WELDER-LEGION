@@ -38,7 +38,9 @@ export function ProductCard({
   onDecrementStock,
   onDelete,
   onPressImage,
-  onQR = () => console.log('QR pressed'),
+  onQR = () => {
+    // TODO: Implementar QR
+  },
 }: ProductCardProps) {
 
   const statusBadge = STATUS_BADGE_MAP[product.id_estado] || STATUS_BADGE_MAP[0];
