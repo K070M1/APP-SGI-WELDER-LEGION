@@ -1,4 +1,4 @@
-import { initializeApp, cert, getApps, App } from 'npm:firebase-admin@12.0.0/app';
+import { initializeApp, cert, getApps, App } from 'npm:firebase-admin@12.0.0/app';  // @ts-ignore
 import { getAuth } from 'npm:firebase-admin@12.0.0/auth';
 
 // CORS headers
@@ -52,8 +52,6 @@ function getFirebaseApp(): App {
     client_x509_cert_url: Deno.env.get('FIREBASE_CERT_URL'),
   };
 
-  console.log('🔧 Inicializando Firebase Admin con proyecto:', serviceAccount.project_id);
-
   firebaseApp = initializeApp({
     credential: cert(serviceAccount as any),
   });
@@ -71,17 +69,15 @@ export default async function handler(req: Request) {
     // Parsear el body
     const { userId, newPassword } = await req.json();
 
-    console.log('🔑 Solicitud de actualización de contraseña para userId:', userId);
-
     // Validar parámetros
     if (!userId || !newPassword) {
       return new Response(
-        JSON.stringify({ 
-          error: 'userId y newPassword son requeridos' 
+        JSON.stringify({
+          error: 'userId y newPassword son requeridos'
         }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
@@ -89,46 +85,37 @@ export default async function handler(req: Request) {
     // Validar que la contraseña tenga al menos 6 caracteres (requisito de Firebase)
     if (newPassword.length < 6) {
       return new Response(
-        JSON.stringify({ 
-          error: 'La contraseña debe tener al menos 6 caracteres' 
+        JSON.stringify({
+          error: 'La contraseña debe tener al menos 6 caracteres'
         }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+        {
+          status: 400,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
       );
     }
 
     // Inicializar Firebase y actualizar contraseña
-    console.log('🔧 Inicializando Firebase Admin...');
     const app = getFirebaseApp();
-    
-    console.log('📝 Actualizando contraseña en Firebase Auth...');
+
     await getAuth(app).updateUser(userId, {
       password: newPassword,
     });
 
-    console.log('✅ Contraseña actualizada correctamente');
-
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Contraseña actualizada correctamente' 
+      JSON.stringify({
+        success: true,
+        message: 'Contraseña actualizada correctamente'
       }),
-      { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
-        }
+      {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
     );
   } catch (error: any) {
-    console.error('❌ Error actualizando contraseña:', error);
-    console.error('❌ Error stack:', error.stack);
-    console.error('❌ Error name:', error.name);
-    console.error('❌ Error code:', error.code);
-    
     // Construir mensaje de error más descriptivo
     let errorMessage = error.message || 'Error desconocido al actualizar la contraseña';
-    
+
     // Errores comunes de Firebase Admin
     if (error.code === 'auth/user-not-found') {
       errorMessage = 'Usuario no encontrado en Firebase Auth';
@@ -139,15 +126,15 @@ export default async function handler(req: Request) {
     } else if (error.message?.includes('service account')) {
       errorMessage = 'Error de configuración: credenciales de service account inválidas';
     }
-    
+
     return new Response(
-      JSON.stringify({ 
+      JSON.stringify({
         error: errorMessage,
         details: error.code || error.name,
       }),
-      { 
-        status: 500, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' } 
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     );
   }
