@@ -3,7 +3,7 @@ import React from 'react';
 import { TouchableOpacity, View } from 'react-native';
 import { User, Edit2, Trash2 } from 'lucide-react-native';
 
-import { Avatar, AvatarFallback } from '@/shared/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { Badge } from '@/shared/components/ui/badge';
 import { Icon } from '@/shared/components/ui/icon';
 import { Text } from '@/shared/components/ui/text';
@@ -33,6 +33,9 @@ export function UserGridCard({ user, onPress, onEdit, onDelete }: UserGridCardPr
 
         {/* Avatar Central */}
         <Avatar alt="avatar" className="size-20 rounded-circle bg-[#748FFC]/10 border border-[#748FFC]/20 flex items-center justify-center">
+          {user?.perfil && (
+            <AvatarImage source={{ uri: user.perfil }} />
+          )}
           <AvatarFallback>
             <Icon as={User} className="size-10 text-[#748FFC]" />
           </AvatarFallback>
