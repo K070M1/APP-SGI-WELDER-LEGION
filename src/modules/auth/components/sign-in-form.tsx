@@ -50,8 +50,9 @@ export function SignInForm() {
 
         // 2. Obtener datos del usuario desde InsForge DB
         try {
+          console.log('Buscando usuario en DB con UID:', firebaseUser.uid);
           const userData = await userService.getUserByUuid(firebaseUser.uid);
-
+          console.log('Usuario encontrado en DB:', userData);
           // 3. Guardar en el store de Zustand con datos completos
           login(
             {
@@ -65,6 +66,7 @@ export function SignInForm() {
             token
           );
         } catch (dbError: any) {
+          console.error('Error al obtener usuario de DB:', dbError);
           // Si no se encuentra en la BD, usar solo datos de Firebase
           login(
             {
