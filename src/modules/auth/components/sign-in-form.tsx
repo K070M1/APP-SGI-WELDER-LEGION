@@ -152,20 +152,6 @@ export function SignInForm() {
               <Text>{isLoading ? 'Iniciando sesión...' : 'Continuar'}</Text>
             </Button>
           </View>
-          <Text className="text-center text-sm">
-            ¿No tienes una cuenta?{' '}
-            <Pressable
-              onPress={() => {
-                // TODO: Navigate to sign up screen
-              }}>
-              <Text className="text-sm underline underline-offset-4">Regístrate</Text>
-            </Pressable>
-          </Text>
-          <View className="flex-row items-center">
-            <Separator className="flex-1" />
-            <Text className="text-muted-foreground px-4 text-sm">o</Text>
-            <Separator className="flex-1" />
-          </View>
         </CardContent>
       </Card>
     </View>
