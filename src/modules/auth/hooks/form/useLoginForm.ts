@@ -31,7 +31,6 @@ export function useLoginForm() {
 
   return {
     form,
-    // form.handleSubmit intercepta el evento y dispara Zod antes de llamar a onSubmit
     submit: form.handleSubmit(onSubmit),
     isSubmitting: form.formState.isSubmitting,
     isValid: form.formState.isValid,

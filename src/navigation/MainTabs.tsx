@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Pressable } from 'react-native';
+import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Package, ArrowLeftRight, Users, UserCircleIcon } from 'lucide-react-native';
@@ -12,11 +12,14 @@ import { UserListScreen } from '@/modules/users/screens/ListScreen';
 import { UserMenu } from '@/shared/components/composed/user-menu';
 import { Icon } from '@/shared/components/ui/icon';
 
+import { useAuth } from '@/shared/hooks/use-auth';
+
 const Tab = createBottomTabNavigator();
 
 export function MainTabs() {
   // Obtenemos los márgenes de seguridad del celular (notch y barra inferior)
   const insets = useSafeAreaInsets();
+  const { user } = useAuth();
 
   return (
     <Tab.Navigator
@@ -43,34 +46,49 @@ export function MainTabs() {
       }}
     >
       {/* 1. PRODUCTOS */}
-      <Tab.Screen
-        name={ROUTES.PRODUCTS.LIST}
-        component={ProductListScreen}
-        options={{
-          tabBarLabel: 'PRODUCTOS',
-          tabBarIcon: ({ color, size }) => <Package color={color} size={size} />,
-        }}
-      />
+      {
+        // Solo ADMIN, ALMACENERO y OPERARIO pueden ver la pestaña de Productos
+        (user?.rol === "ADMIN" || user?.rol === "ALMACENERO" || user?.rol === "OPERARIO") && (
+          <Tab.Screen
+            name={ROUTES.PRODUCTS.LIST}
+            component={ProductListScreen}
+            options={{
+              tabBarLabel: 'PRODUCTOS',
+              tabBarIcon: ({ color, size }) => <Package color={color} size={size} />,
+            }}
+          />
+        )
+      }
 
       {/* 2. MOVIMIENTOS */}
-      <Tab.Screen
-        name={ROUTES.MOVEMENTS.LIST}
-        component={MovementListScreen}
-        options={{
-          tabBarLabel: 'MOVIMIENTOS',
-          tabBarIcon: ({ color, size }) => <ArrowLeftRight color={color} size={size} />,
-        }}
-      />
+      {
+        // Solo ADMIN y ALMACENERO pueden ver la pestaña de Movimientos
+        (user?.rol === "ADMIN" || user?.rol === "ALMACENERO") && (
+          <Tab.Screen
+            name={ROUTES.MOVEMENTS.LIST}
+            component={MovementListScreen}
+            options={{
+              tabBarLabel: 'MOVIMIENTOS',
+              tabBarIcon: ({ color, size }) => <ArrowLeftRight color={color} size={size} />,
+            }}
+          />
+        )
+      }
 
       {/* 3. USUARIOS */}
-      <Tab.Screen
-        name={ROUTES.USERS.LIST}
-        component={UserListScreen}
-        options={{
-          tabBarLabel: 'USUARIOS',
-          tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
-        }}
-      />
+      {
+        // Solo ADMIN puede ver la pestaña de Usuarios
+        (user?.rol === "ADMIN") && (
+          <Tab.Screen
+            name={ROUTES.USERS.LIST}
+            component={UserListScreen}
+            options={{
+              tabBarLabel: 'USUARIOS',
+              tabBarIcon: ({ color, size }) => <Users color={color} size={size} />,
+            }}
+          />
+        )
+      }
 
       {/* 4. CUENTA (Con Dropdown Menu) */}
       <Tab.Screen
