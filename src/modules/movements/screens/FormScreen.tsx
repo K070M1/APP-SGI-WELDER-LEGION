@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, ScrollView, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ChevronLeft, Save, X } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -10,6 +10,8 @@ import { Button } from '@/shared/components/ui/button';
 import { Icon } from '@/shared/components/ui/icon';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem, SelectLabel, type Option } from '@/shared/components/ui/select';
 import { MOVEMENT_CATEGORIES, MOVEMENT_MOTIVES } from '@/shared/constants/filters';
+import { movementService } from '@/api/movement/movement.service';
+import type { MovementCreateDto } from '@/dtos/movements/movement.create.dto';
 
 import { useMovementForm } from '../hooks/form/useMovementForm';
 import { ProductSelector } from '../components/movement-form/ProductSelector';
@@ -19,11 +21,34 @@ import type { MovementFormValues } from '../schema';
 export function MovementFormScreen() {
   const navigation = useNavigation();
   const { form, currentCategory, selectedItems, totalMonto, addProduct, removeProduct, updateQuantity } = useMovementForm();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const availableMotives = MOVEMENT_MOTIVES[currentCategory] || MOVEMENT_MOTIVES['all'];
 
-  const onSubmit = (data: MovementFormValues) => {
-    // TODO: Implementar envío
+  const onSubmit = async (data: MovementFormValues) => {
+    try {
+      setIsSubmitting(true);
+      const payload: MovementCreateDto = {
+        tipo: data.categoria,
+        observaciones: `Motivo: ${data.motivo}. Entidad: ${data.entidad_relacionada}`,
+        id_estado: 1,
+        detalles: data.items.map(item => ({
+          id_producto: item.id_producto,
+          cantidad: item.cantidad,
+          observaciones: null
+        }))
+      };
+
+      await movementService.createMovement(payload);
+      Alert.alert('Éxito', 'El movimiento se registró correctamente', [
+        { text: 'OK', onPress: () => navigation.goBack() }
+      ]);
+    } catch (error) {
+      console.error('Error al registrar movimiento:', error);
+      Alert.alert('Error', 'Hubo un problema al registrar el movimiento.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -147,12 +172,12 @@ export function MovementFormScreen() {
 
             {/* BOTONES DE ACCIÓN */}
             <View className="flex-row gap-3">
-              <Button variant="outline" onPress={() => navigation.goBack()} className="flex-1 h-12 rounded-xl flex-row items-center justify-center">
+              <Button variant="outline" onPress={() => navigation.goBack()} disabled={isSubmitting} className="flex-1 h-12 rounded-xl flex-row items-center justify-center">
                 <Text className="text-foreground font-bold">Cancelar</Text>
               </Button>
-              <Button onPress={form.handleSubmit(onSubmit)} className="flex-1 h-12 rounded-xl flex-row items-center justify-center shadow-sm">
+              <Button onPress={form.handleSubmit(onSubmit)} disabled={isSubmitting} className="flex-1 h-12 rounded-xl flex-row items-center justify-center shadow-sm">
                 <Icon as={Save} size={18} className="text-white mr-2" />
-                <Text className="text-white font-bold">Registrar</Text>
+                <Text className="text-white font-bold">{isSubmitting ? 'Registrando...' : 'Registrar'}</Text>
               </Button>
             </View>
           </View>
