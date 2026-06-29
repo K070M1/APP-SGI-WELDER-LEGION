@@ -36,13 +36,16 @@ export function useMovementList(filters: MovementFilterValues) {
     const normalizedQuery = searchQuery?.trim().toLowerCase() ?? '';
 
     return movements.filter((movement) => {
-      const matchesMotive = motive === 'all' || movement.motivo === motive;
+      const matchesMotive = motive === 'all' || 
+        movement.motivo?.toUpperCase() === motive?.toUpperCase();
+        
       const matchesQuery =
         normalizedQuery.length === 0 ||
         (movement.cliente && movement.cliente.toLowerCase().includes(normalizedQuery)) ||
+        movement.id?.toLowerCase().includes(normalizedQuery) ||
         movement.detalles?.some(d => 
-          d.codigo_producto.toLowerCase().includes(normalizedQuery) ||
-          d.nombre_producto.toLowerCase().includes(normalizedQuery)
+          d.codigo_producto?.toLowerCase().includes(normalizedQuery) ||
+          d.nombre_producto?.toLowerCase().includes(normalizedQuery)
         );
 
       return matchesMotive && matchesQuery;
