@@ -34,7 +34,8 @@ export class MovementService {
           producto (
             id,
             nombre,
-            codigo
+            codigo,
+            precio
           )
         )
       `)
@@ -59,7 +60,8 @@ export class MovementService {
         codigo_producto: det.producto?.codigo || 'N/A',
         cantidad: det.cantidad,
         stock_inicial: det.stockInicial,
-        stock_final: det.stockFinal
+        stock_final: det.stockFinal,
+        precio_unitario: det.producto?.precio || 0
       }));
       const usuario = row.usuario || {};
 
@@ -75,9 +77,60 @@ export class MovementService {
     });
   }
 
-  async getMovementById(id: string) {
-    const url = apiEndpoint(ENDPOINTS.MOVEMENTS_BY_ID, { id });
-    return api.getOne<MovementListItem>(url);
+  async getMovementById(id: string): Promise<MovementListItemDTO> {
+    const { data, error } = await insforge.database
+      .from('movimiento')
+      .select(`
+        id,
+        fechaRegistro,
+        tipo,
+        motivo,
+        cliente,
+        usuario (
+          nombreUsuario
+        ),
+        detalle_movimiento (
+          id,
+          cantidad,
+          stockInicial,
+          stockFinal,
+          producto (
+            id,
+            nombre,
+            codigo,
+            precio
+          )
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching movement by id:', error);
+      throw error;
+    }
+
+    const row = data;
+    const detalles = (row.detalle_movimiento || []).map((det: any) => ({
+      id_detalle: det.id,
+      id_producto: det.producto?.id || '',
+      nombre_producto: det.producto?.nombre || 'Sin producto',
+      codigo_producto: det.producto?.codigo || 'N/A',
+      cantidad: det.cantidad,
+      stock_inicial: det.stockInicial,
+      stock_final: det.stockFinal,
+      precio_unitario: det.producto?.precio || 0
+    }));
+    
+    return {
+      id: row.id,
+      tipo: row.tipo || 'AJUSTE',
+      motivo: row.motivo || null,
+      cliente: row.cliente || null,
+      fechaRegistro: row.fechaRegistro,
+      usuarioNombre: row.usuario?.nombreUsuario || 'Usuario Desconocido',
+      detalles
+    } as MovementListItemDTO;
   }
 
   async createMovement(payload: MovementCreateDto) {

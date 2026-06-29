@@ -25,9 +25,6 @@ export function MovementListScreen() {
   // Extraemos toda la lógica desde nuestro Custom Hook
   const { form, values, resetFilters } = useMovementListFilterForm();
   const { movements, isLoading, pagination } = useMovementList(values);
-  
-  // Estado para el modal de detalles
-  const [selectedMovement, setSelectedMovement] = useState<MovementListItemDTO | null>(null);
 
   // Los motivos disponibles dependen de la categoría seleccionada
   const availableMotives = MOVEMENT_MOTIVES[values.category] || MOVEMENT_MOTIVES['all'];
@@ -166,7 +163,7 @@ export function MovementListScreen() {
             renderItem={({ item }) => (
               <MovementCard
                 movement={item}
-                onViewDetail={() => setSelectedMovement(item)}
+                onViewDetail={() => navigation.navigate(ROUTES.MOVEMENTS.DETAIL, { id: item.id })}
               />
             )}
             ListEmptyComponent={() => (
@@ -193,65 +190,6 @@ export function MovementListScreen() {
           onPageSizeChange={pagination.handlePageSizeChange}
         />
       </View>
-      
-      {/* Ventana Emergente de Detalle de Movimiento */}
-      {selectedMovement && (
-        <View className="absolute inset-0 z-50 justify-center items-center px-4" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
-          <View className="bg-white rounded-3xl w-full max-h-[80%] overflow-hidden shadow-lg">
-            <View className="p-5 border-b border-[#E8E8E8] flex-row justify-between items-center bg-[#F8FAFC]">
-              <Text className="text-lg font-bold text-[#333333]">Detalle del Movimiento</Text>
-              <TouchableOpacity onPress={() => setSelectedMovement(null)}>
-                <View className="w-8 h-8 rounded-full bg-[#E8E8E8] items-center justify-center">
-                  <Text className="text-[#333333] font-bold">X</Text>
-                </View>
-              </TouchableOpacity>
-            </View>
-            
-            <View className="p-5">
-              <View className="flex-row justify-between mb-2">
-                <Text className="text-sm text-[#999999]">Tipo:</Text>
-                <Text className="text-sm font-bold text-[#333333]">{selectedMovement.tipo}</Text>
-              </View>
-              {selectedMovement.cliente && (
-                <View className="flex-row justify-between mb-2">
-                  <Text className="text-sm text-[#999999]">Cliente/Prov:</Text>
-                  <Text className="text-sm font-bold text-[#333333]">{selectedMovement.cliente}</Text>
-                </View>
-              )}
-              {selectedMovement.motivo && (
-                <View className="flex-row justify-between mb-4">
-                  <Text className="text-sm text-[#999999]">Motivo:</Text>
-                  <Text className="text-sm font-bold text-[#333333]">{selectedMovement.motivo}</Text>
-                </View>
-              )}
-              
-              <Text className="text-sm font-extrabold text-[#333333] mt-4 mb-3">PRODUCTOS INVOLUCRADOS</Text>
-              
-              <FlatList 
-                data={selectedMovement.detalles}
-                keyExtractor={(item) => item.id_producto}
-                renderItem={({ item }) => (
-                  <View className="bg-white rounded-xl p-3 mb-2 flex-row justify-between items-center border border-[#E8E8E8]">
-                    <View className="flex-1">
-                      <Text className="font-bold text-[#333333] text-sm">{item.codigo_producto}</Text>
-                      <Text className="text-[#999999] text-xs mt-0.5" numberOfLines={1}>{item.nombre_producto}</Text>
-                    </View>
-                    <View className="items-end pl-2">
-                      <Text className="text-[#748FFC] font-bold text-base">{item.cantidad} und</Text>
-                      <Text className="text-[#999999] text-[10px] mt-0.5">
-                        Stock: {item.stock_inicial ?? '-'} → {item.stock_final ?? '-'}
-                      </Text>
-                    </View>
-                  </View>
-                )}
-                contentContainerClassName="pb-4"
-                showsVerticalScrollIndicator={false}
-              />
-            </View>
-          </View>
-        </View>
-      )}
-
     </SafeAreaView>
   );
 }

@@ -20,6 +20,7 @@ export type MovementDetailItem = {
   cantidad: number;
   stock_inicial?: number;
   stock_final?: number;
+  precio_unitario?: number;
 };
 
 // Keep existing just in case other parts of the app use them, but we will focus on MovementListItemDTO
