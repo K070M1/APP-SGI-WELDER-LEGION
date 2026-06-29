@@ -1,10 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { View, FlatList, RefreshControl, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+import { ROUTES } from '@/navigation/routes';
+import { View, FlatList, RefreshControl, TouchableOpacity, ActivityIndicator, TextInput, Alert } from 'react-native';
 import { Text } from '@/shared/components/ui/text';
 import { Input } from '@/shared/components/ui/input';
 import { Button } from '@/shared/components/ui/button';
 import { cn } from '@/shared/utils/tw';
-import { PackageOpen, Search, Filter, Plus, ChevronDown } from 'lucide-react-native';
+import { Icon } from '@/shared/components/ui/icon';
+import { PackageOpen, Search, FilterIcon, Plus, ChevronDown } from 'lucide-react-native';
 import { movementService } from '@/api/movement/movement.service';
 import type { MovementListItemDTO, MovementType } from '@/dtos/movements/movement.dto';
 import { MovementCard } from '../components/MovementCard';
@@ -29,6 +32,7 @@ const MOTIVE_OPTIONS = [
 ];
 
 export default function MovementsListScreen() {
+  const navigation = useNavigation();
   const [movements, setMovements] = useState<MovementListItemDTO[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isRefreshing, setIsRefreshing] = useState(false);
@@ -49,8 +53,12 @@ export default function MovementsListScreen() {
         categoryFilter.value !== 'TODAS' ? { tipo: categoryFilter.value as any } : undefined
       );
       setMovements(data);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Failed to fetch movements', error);
+      Alert.alert(
+        'Error de Base de Datos',
+        `No se pudo cargar los datos. Detalle del error: ${error?.message || error?.details || JSON.stringify(error)}`
+      );
     } finally {
       setIsLoading(false);
       setIsRefreshing(false);
@@ -111,42 +119,46 @@ export default function MovementsListScreen() {
   };
 
   return (
-    <View className="flex-1 bg-background pt-12">
+    <View className="flex-1 bg-[#F8FAFC] pt-12">
       {/* ... cabeceras omitidas, pero no las toco aquí, el diff de abajo preserva esto ... */}
       
       {/* Header Superior */}
-      <View className="px-5 py-4 flex-row justify-between items-center">
+      <View className="px-4 mb-6 flex-row justify-between items-center">
         <View>
-          <Text className="text-3xl font-black text-foreground">MOVIMIENTOS</Text>
-          <Text className="text-base text-muted-foreground mt-1 font-medium">Entradas y Salidas</Text>
+          <View className="flex-row items-center">
+            <Text className="text-3xl font-extrabold text-slate-900 leading-tight">MOVIMIENTOS</Text>
+          </View>
+          <Text className="text-sm text-slate-500 font-medium mt-1">Entradas y Salidas</Text>
         </View>
-        <Button className="rounded-full px-5 h-11 flex-row items-center space-x-2">
-          <Plus size={18} className="text-primary-foreground" />
-          <Text className="text-primary-foreground font-bold text-base ml-1">Nuevo</Text>
+        <Button 
+          className="rounded-2xl shadow-sm px-4 h-10 flex-row items-center bg-[#748FFC]"
+          onPress={() => navigation.navigate(ROUTES.MOVEMENTS.FORM as never)}
+        >
+          <Icon as={Plus} className="size-5 text-white mr-2" />
+          <Text className="text-white font-bold text-sm">Nuevo</Text>
         </Button>
       </View>
 
-      {/* Controles de Filtros */}
-      <View className="px-5 pb-5 border-b border-border">
+      {/* Contenedor de Filtros Avanzados */}
+      <View className="px-4 mb-6">
         
         {/* Input de Búsqueda */}
-        <View className="relative mb-3">
-          <View className="absolute left-4 top-0 bottom-0 justify-center z-10">
-            <Search size={20} className="text-muted-foreground" />
-          </View>
-          <Input
+        <View className="flex-row items-center bg-white border border-slate-200 rounded-xl px-4 mb-3">
+          <Icon as={Search} className="size-5 text-slate-400" />
+          <TextInput
             placeholder="Buscar código o cliente..."
+            placeholderTextColor="#94a3b8"
             value={searchQuery}
             onChangeText={setSearchQuery}
-            className="pl-12 h-14 rounded-2xl border-border text-base bg-background"
+            className="flex-1 ml-3 text-sm text-slate-900 font-medium h-10"
           />
         </View>
 
         {/* Dropdowns de Filtro */}
-        <View className="flex-row space-x-3 mb-4">
-          <View className="flex-1 mr-3">
+        <View className="flex-row gap-2 mb-4">
+          <View className="flex-1">
             <Select value={categoryFilter as any} onValueChange={(opt: any) => setCategoryFilter(opt)}>
-              <SelectTrigger className="h-12 rounded-2xl border-border bg-background">
+              <SelectTrigger className="rounded-xl bg-white border border-slate-200 h-10">
                 <SelectValue placeholder="Categoría" />
               </SelectTrigger>
               <SelectContent align="start" sideOffset={8} className="w-56 rounded-xl border-slate-100">
@@ -166,7 +178,7 @@ export default function MovementsListScreen() {
           
           <View className="flex-1">
             <Select value={motiveFilter as any} onValueChange={(opt: any) => setMotiveFilter(opt)}>
-              <SelectTrigger className="h-12 rounded-2xl border-border bg-background">
+              <SelectTrigger className="rounded-xl bg-white border border-slate-200 h-10">
                 <SelectValue placeholder="Motivo" />
               </SelectTrigger>
               <SelectContent align="end" sideOffset={8} className="w-56 rounded-xl border-slate-100">
@@ -186,25 +198,24 @@ export default function MovementsListScreen() {
         </View>
 
         {/* Botones de Acción */}
-        <View className="flex-row space-x-3">
+        <View className="flex-row gap-2">
           <Button 
             variant="outline" 
-            className="flex-1 h-14 rounded-2xl border-border flex-row items-center justify-center mr-3"
+            className="flex-1 rounded-xl border-slate-200 h-10 flex-row items-center justify-center bg-white"
             onPress={handleClear}
           >
-            <Filter size={18} className="text-foreground" />
-            <Text className="font-bold ml-2 text-[15px]">Limpiar</Text>
+            <Icon as={FilterIcon} className="size-4 text-slate-500 mr-2" />
+            <Text className="text-slate-600 font-bold text-xs">Limpiar</Text>
           </Button>
 
           <Button 
-            className="flex-1 h-14 rounded-2xl flex-row items-center justify-center"
+            className="flex-1 rounded-xl h-10 flex-row items-center justify-center bg-[#748FFC]"
             onPress={handleSearch}
           >
-            <Search size={18} className="text-primary-foreground" />
-            <Text className="text-primary-foreground font-bold ml-2 text-[15px]">Buscar</Text>
+            <Icon as={Search} className="size-4 text-white mr-2" />
+            <Text className="text-white font-bold text-xs">Buscar</Text>
           </Button>
         </View>
-
       </View>
 
       {/* Listado de Tarjetas */}

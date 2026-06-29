@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, ScrollView, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, ScrollView, TextInput, KeyboardAvoidingView, Platform, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { ChevronLeft, Save, X } from 'lucide-react-native';
+import { ChevronLeft, Save } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
 import { Controller } from 'react-hook-form';
 
@@ -15,27 +15,48 @@ import { useMovementForm } from '../hooks/form/useMovementForm';
 import { ProductSelector } from '../components/movement-form/ProductSelector';
 import { SelectedProductCard } from '../components/movement-form/SelectedProductCard';
 import type { MovementFormValues } from '../schema';
+import { movementService } from '@/api/movement/movement.service';
 
 export function MovementFormScreen() {
   const navigation = useNavigation();
   const { form, currentCategory, selectedItems, totalMonto, addProduct, removeProduct, updateQuantity } = useMovementForm();
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const availableMotives = MOVEMENT_MOTIVES[currentCategory] || MOVEMENT_MOTIVES['all'];
 
-  const onSubmit = (data: MovementFormValues) => {
-    // TODO: Implementar envío
+  const onSubmit = async (data: MovementFormValues) => {
+    try {
+      setIsSubmitting(true);
+      await movementService.createMovement({
+        tipo: data.categoria,
+        observaciones: `Motivo: ${data.motivo} - Entidad: ${data.entidad_relacionada}`,
+        detalles: data.items.map(item => ({
+          id_producto: item.id_producto,
+          cantidad: item.cantidad
+        }))
+      });
+      
+      Alert.alert('Éxito', 'El movimiento se registró correctamente.', [
+        { text: 'Aceptar', onPress: () => navigation.goBack() }
+      ]);
+    } catch (error: any) {
+      console.error('Error creating movement:', error);
+      Alert.alert('Error', error?.message || 'Hubo un problema al registrar el movimiento.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-background">
+    <SafeAreaView className="flex-1 bg-[#F8FAFC]">
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} className="flex-1">
 
         {/* Cabecera */}
-        <View className="flex-row items-center px-4 pt-4 pb-4 bg-background-secondary border-b border-border">
+        <View className="flex-row items-center px-4 pt-4 pb-4 bg-white border-b border-[#E8E8E8]">
           <TouchableOpacity onPress={() => navigation.goBack()} className="p-2 mr-2">
-            <Icon as={ChevronLeft} size={24} className="text-foreground" />
+            <Icon as={ChevronLeft} size={24} className="text-[#333333]" />
           </TouchableOpacity>
-          <Text className="text-xl font-bold text-foreground">Nuevo Movimiento</Text>
+          <Text className="text-xl font-bold text-[#333333]">Nuevo Movimiento</Text>
         </View>
 
         <ScrollView className="flex-1 px-4 pt-6" showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingBottom: 100 }}>
@@ -44,7 +65,7 @@ export function MovementFormScreen() {
           <View className="mb-6">
             <View className="flex-row gap-4 mb-4">
               <View className="flex-1">
-                <Text className="text-xs font-bold text-foreground mb-2">CATEGORÍA</Text>
+                <Text className="text-xs font-bold text-[#333333] mb-2">CATEGORÍA</Text>
                 <Controller
                   control={form.control}
                   name="categoria"
@@ -53,10 +74,10 @@ export function MovementFormScreen() {
                       value={value ? { value, label: String(value) } as Option : undefined}
                       onValueChange={(option: Option | undefined) => option && onChange(option.value)}
                     >
-                      <SelectTrigger className="rounded-xl bg-background-secondary border border-border h-12">
+                      <SelectTrigger className="rounded-xl bg-white border border-[#E8E8E8] h-12">
                         <SelectValue placeholder="Seleccione" />
                       </SelectTrigger>
-                      <SelectContent align="center" sideOffset={8} className="w-48 rounded-xl border-border">
+                      <SelectContent align="center" sideOffset={8} className="w-full rounded-xl border-[#E8E8E8]">
                         <SelectGroup>
                           {MOVEMENT_CATEGORIES.filter(c => c.value !== 'all').map(c => (
                             <SelectItem key={c.value} value={c.value} label={c.label}>
@@ -71,7 +92,7 @@ export function MovementFormScreen() {
               </View>
 
               <View className="flex-1">
-                <Text className="text-xs font-bold text-foreground mb-2">MOTIVO</Text>
+                <Text className="text-xs font-bold text-[#333333] mb-2">MOTIVO</Text>
                 <Controller
                   control={form.control}
                   name="motivo"
@@ -80,10 +101,10 @@ export function MovementFormScreen() {
                       value={value ? ({ value, label: String(value) } as Option) : undefined}
                       onValueChange={(option: Option | undefined) => option && onChange(option.value)}
                     >
-                      <SelectTrigger className="rounded-xl bg-background-secondary border border-border h-12">
+                      <SelectTrigger className="rounded-xl bg-white border border-[#E8E8E8] h-12">
                         <SelectValue placeholder="Seleccione" />
                       </SelectTrigger>
-                      <SelectContent align="center" sideOffset={8} className="w-48 rounded-xl border-border">
+                      <SelectContent align="center" sideOffset={8} className="w-full rounded-xl border-[#E8E8E8]">
                         <SelectGroup>
                           {availableMotives.filter(m => m.value !== 'all').map(m => (
                             <SelectItem key={m.value} value={m.value} label={m.label}>
@@ -99,15 +120,15 @@ export function MovementFormScreen() {
             </View>
 
             <View className="mb-4">
-              <Text className="text-xs font-bold text-foreground mb-2">CLIENTE / PROVEEDOR</Text>
+              <Text className="text-xs font-bold text-[#333333] mb-2">CLIENTE / PROVEEDOR</Text>
               <Controller
                 control={form.control}
                 name="entidad_relacionada"
                 render={({ field: { onChange, value } }) => (
                   <TextInput
-                    className="h-12 px-4 bg-background-secondary border border-border rounded-xl text-foreground"
+                    className="h-12 px-4 bg-white border border-[#E8E8E8] rounded-xl text-[#333333]"
                     placeholder="Nombre de la entidad..."
-                    placeholderTextColor="#9CA3AF"
+                    placeholderTextColor="#999999"
                     value={value}
                     onChangeText={onChange}
                   />
@@ -115,15 +136,18 @@ export function MovementFormScreen() {
               />
             </View>
 
-            <View className="border-t border-[#E8E8E8] pt-2 pb-2" />
+            <View className="border-t border-[#E8E8E8] pt-4 mt-2 pb-2" />
 
             {/* SECCIÓN 2: CARRITO DE PRODUCTOS */}
-            <ProductSelector onSelect={addProduct} />
+            <View className="mb-2">
+              <Text className="text-xs font-bold text-[#333333] mb-2">PRODUCTOS</Text>
+              <ProductSelector onSelect={addProduct} />
+            </View>
 
             <View className="min-h-[100px] mb-4">
               {selectedItems.length === 0 ? (
-                <View className="items-center justify-center p-6 bg-background-tertiary rounded-2xl border border-dashed border-border">
-                  <Text className="text-muted text-xs">No hay productos seleccionados</Text>
+                <View className="items-center justify-center p-6 bg-[#F8FAFC] rounded-2xl border border-dashed border-[#E8E8E8]">
+                  <Text className="text-[#999999] text-xs">No hay productos seleccionados</Text>
                 </View>
               ) : (
                 selectedItems.map(item => (
@@ -138,21 +162,29 @@ export function MovementFormScreen() {
             </View>
 
             {/* TOTALES */}
-            <View className="bg-background p-4 rounded-2xl border border-border mb-8">
+            <View className="bg-white p-4 rounded-2xl border border-[#E8E8E8] mb-8">
               <View className="flex-row justify-between items-center">
-                <Text className="text-xs font-bold text-muted">MONTO TOTAL ESTIMADO</Text>
-                <Text className="text-xl font-extrabold text-primary">S/ {totalMonto.toFixed(2)}</Text>
+                <Text className="text-xs font-bold text-[#999999]">MONTO TOTAL ESTIMADO</Text>
+                <Text className="text-xl font-extrabold text-[#748FFC]">S/ {totalMonto.toFixed(2)}</Text>
               </View>
             </View>
 
             {/* BOTONES DE ACCIÓN */}
             <View className="flex-row gap-3">
-              <Button variant="outline" onPress={() => navigation.goBack()} className="flex-1 h-12 rounded-xl flex-row items-center justify-center">
-                <Text className="text-foreground font-bold">Cancelar</Text>
+              <Button variant="outline" onPress={() => navigation.goBack()} className="flex-1 h-12 rounded-xl flex-row items-center justify-center bg-[#F1F5F9] border-0">
+                <Text className="text-[#1E293B] font-bold">Cancelar</Text>
               </Button>
-              <Button onPress={form.handleSubmit(onSubmit)} className="flex-1 h-12 rounded-xl flex-row items-center justify-center shadow-sm">
-                <Icon as={Save} size={18} className="text-white mr-2" />
-                <Text className="text-white font-bold">Registrar</Text>
+              <Button 
+                onPress={form.handleSubmit(onSubmit)} 
+                disabled={isSubmitting}
+                className={`flex-1 h-12 rounded-xl flex-row items-center justify-center shadow-sm ${isSubmitting ? 'bg-[#9BAFFB]' : 'bg-[#748FFC]'}`}
+              >
+                {isSubmitting ? (
+                  <ActivityIndicator color="white" className="mr-2" />
+                ) : (
+                  <Icon as={Save} size={18} className="text-white mr-2" />
+                )}
+                <Text className="text-white font-bold">{isSubmitting ? 'Registrando...' : 'Registrar'}</Text>
               </Button>
             </View>
           </View>
