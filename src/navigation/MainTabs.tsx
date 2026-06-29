@@ -2,7 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { Package, ArrowLeftRight, Users, UserCircleIcon } from 'lucide-react-native';
+import { Package, ArrowLeftRight, Users, UserCircleIcon, LayoutDashboard } from 'lucide-react-native';
 
 import { ROUTES } from './routes';
 import { ProductListScreen } from '@/modules/products/screens/ListScreen';
@@ -74,6 +74,20 @@ export function MainTabs() {
           />
         )
       }
+
+      <Tab.Screen
+        name={ROUTES.DASHBOARD.LIST}
+        component={View}
+        options={{
+          tabBarButton: () => (
+            <View className="flex-1 items-center justify-center">
+              <View className='-mt-8 bg-[#748FFC] rounded-full p-3.5 elevation-md'>
+                <LayoutDashboard color="#ffffff" size={24} />
+              </View>
+            </View>
+          )
+        }}
+      />
 
       {/* 3. USUARIOS */}
       {
