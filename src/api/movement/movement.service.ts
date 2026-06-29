@@ -11,6 +11,7 @@ import type { MovementUpdateDto } from '@/dtos/movements/movement.update.dto';
 import type { MovementFilters } from '@/dtos/movements/movement.filters.dto';
 import { CheckStatus } from '@/dtos/core/checkStatus.dto';
 import { insforge } from '@/lib/insforge';
+import { useAuthStore } from '@/api/auth/auth.store';
 
 export class MovementService {
   async getMovements(filters?: MovementFilters): Promise<MovementListItemDTO[]> {
@@ -69,7 +70,55 @@ export class MovementService {
   }
 
   async createMovement(payload: MovementCreateDto) {
-    return api.postAndGetOne<MovementListItem>(ENDPOINTS.MOVEMENTS, payload);
+    try {
+      const userId = useAuthStore.getState().user?.id;
+      
+      if (!userId) {
+        throw new Error("No hay usuario autenticado.");
+      }
+
+      // 1. Crear el registro maestro de movimiento
+      const { data: movData, error: movError } = await insforge.database
+        .from('movimiento')
+        .insert({
+          tipo: payload.tipo,
+          observaciones: payload.observaciones,
+          id_usuario: userId
+        })
+        .select()
+        .single();
+
+      if (movError) {
+        console.error('Error insertando movimiento:', movError);
+        throw movError;
+      }
+
+      // 2. Crear los detalles (productos) asociados al movimiento
+      const detallesToInsert = payload.detalles.map(d => ({
+        id_movimiento: movData.id,
+        id_producto: d.id_producto,
+        cantidad: d.cantidad,
+        observaciones: d.observaciones
+      }));
+
+      const { error: detError } = await insforge.database
+        .from('detalle_movimiento')
+        .insert(detallesToInsert);
+
+      if (detError) {
+        console.error('Error insertando detalles:', detError);
+        throw detError;
+      }
+
+      return {
+        isOk: () => true,
+        getMessage: () => 'Movimiento creado exitosamente',
+        data: movData as MovementListItem
+      };
+    } catch (error: any) {
+      console.error('Error en createMovement:', error);
+      throw error;
+    }
   }
 
   async updateMovement(id: string, payload: MovementUpdateDto): Promise<CheckStatus> {

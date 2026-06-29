@@ -25,22 +25,21 @@ export function ProductSelector({ onSelect }: { onSelect: (product: MovementSele
 
   return (
     <View className="mb-4">
-      <Text className="text-xs font-bold text-[#333333] mb-2">PRODUCTOS</Text>
       <Popover>
         <PopoverTrigger asChild>
-          <TouchableOpacity className="w-full h-12 px-4 bg-background-secondary border border-border rounded-2xl flex-row items-center gap-3 shadow-sm">
-            <Text className="text-muted flex-1">Seleccione un producto</Text>
-            <Icon as={ChevronDown} size={18} className="text-muted" />
+          <TouchableOpacity className="w-full h-12 px-4 bg-white border border-[#E8E8E8] rounded-xl flex-row items-center gap-3">
+            <Text className="text-[#999999] flex-1">Seleccione un producto</Text>
+            <Icon as={ChevronDown} size={18} className="text-[#999999]" />
           </TouchableOpacity>
         </PopoverTrigger>
-        <PopoverContent className="w-[93%] bg-white border border-border px-4 py-3 rounded-3xl shadow-lg">
+        <PopoverContent className="w-[93%] bg-white border border-[#E8E8E8] px-4 py-3 rounded-3xl shadow-lg">
           <View className="mb-3">
-            <View className="flex-row items-center bg-background-secondary rounded-2xl px-3 py-2 border border-border">
-              <Icon as={Search} size={16} className="text-muted mr-2" />
+            <View className="flex-row items-center bg-white rounded-xl px-3 py-2 border border-[#E8E8E8]">
+              <Icon as={Search} size={16} className="text-[#999999] mr-2" />
               <TextInput
                 placeholder="Buscar por nombre o código"
-                placeholderTextColor="#9CA3AF"
-                className="flex-1 text-sm text-foreground py-2"
+                placeholderTextColor="#999999"
+                className="flex-1 text-sm text-[#333333] py-2"
                 value={query}
                 onChangeText={setQuery}
               />
@@ -51,23 +50,23 @@ export function ProductSelector({ onSelect }: { onSelect: (product: MovementSele
               filteredProducts.map((prod) => (
                 <TouchableOpacity
                   key={prod.id_producto}
-                  className="p-3 rounded-2xl mb-2 bg-background-secondary active:bg-background-tertiary"
+                  className="p-3 rounded-2xl mb-2 bg-[#F8FAFC] active:bg-[#E8E8E8]"
                   onPress={() => onSelect(prod)}
                 >
                   <View className="flex-row items-center gap-3">
-                    <View className="w-10 h-10 rounded-full bg-primary/10 items-center justify-center">
-                      <Icon as={Package} size={16} className="text-primary" />
+                    <View className="w-10 h-10 rounded-full bg-[#EBF0FF] items-center justify-center">
+                      <Icon as={Package} size={16} className="text-[#748FFC]" />
                     </View>
                     <View className="flex-1">
-                      <Text className="font-bold text-foreground text-sm">{prod.nombre}</Text>
-                      <Text className="text-xs text-muted">{prod.codigo} • S/ {prod.precio}</Text>
+                      <Text className="font-bold text-[#333333] text-sm">{prod.nombre}</Text>
+                      <Text className="text-xs text-[#999999]">{prod.codigo} • S/ {prod.precio}</Text>
                     </View>
                   </View>
                 </TouchableOpacity>
               ))
             ) : (
-              <View className="p-4 rounded-2xl bg-background-tertiary">
-                <Text className="text-sm text-muted">No se encontró ningún producto.</Text>
+              <View className="p-4 rounded-2xl bg-[#F8FAFC]">
+                <Text className="text-sm text-[#999999]">No se encontró ningún producto.</Text>
               </View>
             )}
           </ScrollView>
