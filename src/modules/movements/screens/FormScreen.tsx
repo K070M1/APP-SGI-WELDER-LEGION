@@ -17,7 +17,6 @@ import { useMovementForm } from '../hooks/form/useMovementForm';
 import { ProductSelector } from '../components/movement-form/ProductSelector';
 import { SelectedProductCard } from '../components/movement-form/SelectedProductCard';
 import type { MovementFormValues } from '../schema';
-import { movementService } from '@/api/movement/movement.service';
 
 export function MovementFormScreen() {
   const navigation = useNavigation();
