@@ -1,9 +1,7 @@
 import React from 'react';
-import { View, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
+import { View, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator, Alert, Linking, Platform } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ChevronLeft, Download, ArrowLeft, FileText, Calendar, User, Package } from 'lucide-react-native';
-import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
 
 import { Text } from '@/shared/components/ui/text';
 import { Button } from '@/shared/components/ui/button';
@@ -36,26 +34,39 @@ export function MovementDetailScreen() {
   const handleDownloadPDF = async () => {
     try {
       const htmlContent = `
+        <!DOCTYPE html>
         <html>
           <head>
+            <meta charset="utf-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>Comprobante de Movimiento</title>
             <style>
-              body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #333; }
+              body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 20px; color: #333; max-width: 800px; margin: 0 auto; }
               .header { text-align: center; margin-bottom: 40px; }
               .title { font-size: 24px; font-weight: bold; color: #111; margin-bottom: 5px; }
               .subtitle { font-size: 14px; color: #666; }
-              .info-box { border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; margin-bottom: 30px; }
-              .info-row { margin-bottom: 15px; }
-              .info-label { font-size: 11px; font-weight: bold; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-              .info-value { font-size: 14px; font-weight: bold; color: #333; }
+              .info-box { border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; margin-bottom: 30px; display: flex; flex-direction: column; gap: 15px; }
+              .info-row { display: flex; justify-content: space-between; align-items: center; }
+              .info-label { font-size: 11px; font-weight: bold; color: #999; text-transform: uppercase; letter-spacing: 1px; }
+              .info-value { font-size: 14px; font-weight: bold; color: #333; text-align: right; }
               table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
               th { text-align: left; padding: 12px; border-bottom: 2px solid #e8e8e8; font-size: 12px; color: #999; text-transform: uppercase; }
               td { padding: 12px; border-bottom: 1px solid #e8e8e8; font-size: 14px; color: #333; }
               .total-box { background-color: #333; color: white; border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
               .total-label { font-size: 14px; font-weight: bold; letter-spacing: 1px; }
               .total-value { font-size: 24px; font-weight: bold; color: #748FFC; }
+              @media print {
+                body { padding: 0; }
+                .no-print { display: none; }
+              }
             </style>
           </head>
           <body>
+            <div class="no-print" style="background: #f8f9fa; padding: 15px; text-align: center; margin-bottom: 20px; border-radius: 8px;">
+              <p style="margin: 0 0 10px 0; color: #666;">Haz clic en el botón para guardar como PDF</p>
+              <button onclick="window.print()" style="background: #748FFC; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer;">Descargar PDF</button>
+            </div>
+
             <div class="header">
               <div class="title">COMPROBANTE DE MOVIMIENTO</div>
               <div class="subtitle">Mov-${movement.id.slice(0, 8).toUpperCase()} - ${movement.tipo}</div>
@@ -63,17 +74,19 @@ export function MovementDetailScreen() {
             
             <div class="info-box">
               <div class="info-row">
-                <div class="info-label">Motivo / Entidad</div>
-                <div class="info-value">${movement.motivo || movement.tipo}</div>
-                <div style="font-size: 12px; color: #666; margin-top: 2px;">${movement.cliente || 'N/A'}</div>
+                <span class="info-label">Motivo / Entidad</span>
+                <div class="info-value">
+                  <div>${movement.motivo || movement.tipo}</div>
+                  <div style="font-size: 12px; color: #666; margin-top: 2px; font-weight: normal;">${movement.cliente || 'N/A'}</div>
+                </div>
               </div>
               <div class="info-row">
-                <div class="info-label">Fecha de Emisión</div>
-                <div class="info-value">${new Date(movement.fechaRegistro).toLocaleString()}</div>
+                <span class="info-label">Fecha de Emisión</span>
+                <span class="info-value">${new Date(movement.fechaRegistro).toLocaleString()}</span>
               </div>
-              <div class="info-row" style="margin-bottom: 0;">
-                <div class="info-label">Registrado Por</div>
-                <div class="info-value">${movement.usuarioNombre}</div>
+              <div class="info-row">
+                <span class="info-label">Registrado Por</span>
+                <span class="info-value">${movement.usuarioNombre}</span>
               </div>
             </div>
 
@@ -105,15 +118,29 @@ export function MovementDetailScreen() {
               <span class="total-label">VALOR TOTAL</span>
               <span class="total-value">S/ ${montoTotal.toFixed(2)}</span>
             </div>
+            
+            <script>
+              // Intenta abrir el diálogo de impresión automáticamente (funciona en algunos navegadores móviles)
+              setTimeout(() => { window.print(); }, 1000);
+            </script>
           </body>
         </html>
       `;
 
-      const { uri } = await Print.printToFileAsync({ html: htmlContent });
-      await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
+      // Codificar el HTML a una URI de datos segura
+      const dataUri = `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`;
+      
+      // Abrir en el navegador predeterminado del teléfono
+      const supported = await Linking.canOpenURL(dataUri);
+      
+      if (supported || Platform.OS === 'android') {
+        await Linking.openURL(dataUri);
+      } else {
+        Alert.alert('Error', 'Tu dispositivo no soporta abrir este documento directamente.');
+      }
     } catch (error) {
-      console.error('Error generating PDF:', error);
-      Alert.alert('Error', 'No se pudo generar el PDF');
+      console.error('Error opening PDF viewer:', error);
+      Alert.alert('Aviso', 'Abre esta aplicación en un navegador para descargar el PDF.');
     }
   };
 
