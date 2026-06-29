@@ -98,6 +98,8 @@ export class MovementService {
         id_movimiento: movData.id,
         id_producto: d.id_producto,
         cantidad: d.cantidad,
+        stockInicial: d.stockInicial,
+        stockFinal: d.stockFinal,
         observaciones: d.observaciones
       }));
 

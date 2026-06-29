@@ -30,10 +30,19 @@ export function MovementFormScreen() {
       await movementService.createMovement({
         tipo: data.categoria,
         observaciones: `Motivo: ${data.motivo} - Entidad: ${data.entidad_relacionada}`,
-        detalles: data.items.map(item => ({
-          id_producto: item.id_producto,
-          cantidad: item.cantidad
-        }))
+        detalles: data.items.map(item => {
+          const stockInicial = item.stock || 0;
+          let stockFinal = stockInicial;
+          if (data.categoria === 'ENTRADA') stockFinal += item.cantidad;
+          else if (data.categoria === 'SALIDA') stockFinal -= item.cantidad;
+
+          return {
+            id_producto: item.id_producto,
+            cantidad: item.cantidad,
+            stockInicial,
+            stockFinal
+          };
+        })
       });
       
       Alert.alert('Éxito', 'El movimiento se registró correctamente.', [

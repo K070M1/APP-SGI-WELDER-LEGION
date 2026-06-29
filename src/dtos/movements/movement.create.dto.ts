@@ -1,6 +1,8 @@
 export type MovementDetailCreateDto = {
   id_producto: string;
   cantidad: number;
+  stockInicial: number;
+  stockFinal: number;
   observaciones?: string | null;
 };
 
