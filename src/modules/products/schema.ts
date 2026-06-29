@@ -10,7 +10,7 @@ const productBaseSchema = z.object({
   id_marca: z.string().min(1, 'Obligatorio'),
   id_subcategoria: z.string().min(1, 'Obligatorio'),
   id_moneda: z.string().min(1, 'Obligatorio'),
-  id_estado: z.coerce.number().min(1, 'Obligatorio'),
+  id_estado: z.coerce.number().min(0, 'Obligatorio'),
 });
 
 export const productCreateSchema = productBaseSchema;

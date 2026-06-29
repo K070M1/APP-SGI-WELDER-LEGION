@@ -10,6 +10,8 @@ import { Button } from '@/shared/components/ui/button';
 import { Icon } from '@/shared/components/ui/icon';
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectItem, SelectLabel, type Option } from '@/shared/components/ui/select';
 import { MOVEMENT_CATEGORIES, MOVEMENT_MOTIVES } from '@/shared/constants/filters';
+import { movementService } from '@/api/movement/movement.service';
+import type { MovementCreateDto } from '@/dtos/movements/movement.create.dto';
 
 import { useMovementForm } from '../hooks/form/useMovementForm';
 import { ProductSelector } from '../components/movement-form/ProductSelector';
