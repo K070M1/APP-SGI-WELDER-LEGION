@@ -29,7 +29,8 @@ export function MovementFormScreen() {
       setIsSubmitting(true);
       await movementService.createMovement({
         tipo: data.categoria,
-        observaciones: `Motivo: ${data.motivo} - Entidad: ${data.entidad_relacionada}`,
+        motivo: data.motivo,
+        cliente: data.entidad_relacionada,
         detalles: data.items.map(item => {
           const stockInicial = item.stock || 0;
           let stockFinal = stockInicial;

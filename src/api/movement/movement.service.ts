@@ -21,13 +21,18 @@ export class MovementService {
         id,
         fechaRegistro,
         tipo,
-        observaciones,
+        motivo,
+        cliente,
         usuario (
           nombreUsuario
         ),
         detalle_movimiento (
+          id,
           cantidad,
+          stockInicial,
+          stockFinal,
           producto (
+            id,
             nombre,
             codigo
           )
@@ -47,19 +52,25 @@ export class MovementService {
     }
 
     return (data || []).map((row: any) => {
-      const detalle = row.detalle_movimiento?.[0] || {};
-      const producto = detalle.producto || {};
+      const detalles = (row.detalle_movimiento || []).map((det: any) => ({
+        id_detalle: det.id,
+        id_producto: det.producto?.id || '',
+        nombre_producto: det.producto?.nombre || 'Sin producto',
+        codigo_producto: det.producto?.codigo || 'N/A',
+        cantidad: det.cantidad,
+        stock_inicial: det.stockInicial,
+        stock_final: det.stockFinal
+      }));
       const usuario = row.usuario || {};
 
       return {
         id: row.id,
         tipo: row.tipo || 'AJUSTE',
-        observaciones: row.observaciones || 'N/A',
+        motivo: row.motivo || null,
+        cliente: row.cliente || null,
         fechaRegistro: row.fechaRegistro,
-        productoNombre: producto.nombre || 'Sin producto',
-        productoCodigo: producto.codigo || 'N/A',
-        cantidad: detalle.cantidad || 0,
-        usuarioNombre: usuario.nombreUsuario || 'admin',
+        usuarioNombre: usuario.nombreUsuario || 'Usuario Desconocido',
+        detalles
       } as MovementListItemDTO;
     });
   }
@@ -82,7 +93,8 @@ export class MovementService {
         .from('movimiento')
         .insert({
           tipo: payload.tipo,
-          observaciones: payload.observaciones,
+          motivo: payload.motivo,
+          cliente: payload.cliente,
           id_usuario: userId
         })
         .select()

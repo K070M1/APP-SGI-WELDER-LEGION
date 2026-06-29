@@ -1,63 +1,53 @@
-import { useMemo } from 'react';
-import type { MovementListItem } from '@/dtos/movements/movement.dto';
+import { useState, useEffect, useCallback, useMemo } from 'react';
+import type { MovementListItemDTO } from '@/dtos/movements/movement.dto';
 import { usePagination } from '@/shared/hooks/use-pagination';
 import type { MovementFilterValues } from '../../schema';
-
-const INITIAL_MOCK_MOVEMENTS: MovementListItem[] = [
-  {
-    id: '1',
-    id_movimiento: 'mov-001',
-    codigo: 'ENT-26-001',
-    categoria: 'ENTRADA',
-    motivo: 'COMPRA',
-    entidad_relacionada: 'Ferretería Industrial S.A.C.',
-    cantidad_items: 150,
-    monto_total: 4500.0,
-    fecha_movimiento: '2026-05-10',
-    usuario_creacion: 'admin'
-  },
-  {
-    id: '2',
-    id_movimiento: 'mov-002',
-    codigo: 'SAL-26-001',
-    categoria: 'SALIDA',
-    motivo: 'VENTA',
-    entidad_relacionada: 'Constructora del Norte EIRL',
-    cantidad_items: 12,
-    monto_total: 1250.5,
-    fecha_movimiento: '2026-05-11',
-    usuario_creacion: 'jomar'
-  },
-  {
-    id: '3',
-    id_movimiento: 'mov-003',
-    codigo: 'SAL-26-002',
-    categoria: 'SALIDA',
-    motivo: 'MERMA',
-    entidad_relacionada: 'Almacén Principal',
-    cantidad_items: 2,
-    monto_total: 0.0,
-    fecha_movimiento: '2026-05-12',
-    usuario_creacion: 'admin'
-  }
-];
+import { movementService } from '@/api/movement/movement.service';
+import { Alert } from 'react-native';
 
 export function useMovementList(filters: MovementFilterValues) {
+  const [movements, setMovements] = useState<MovementListItemDTO[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  const fetchMovements = useCallback(async () => {
+    try {
+      setIsLoading(true);
+      const data = await movementService.getMovements({
+        tipo: filters.category !== 'all' ? (filters.category as any) : undefined
+      });
+      setMovements(data);
+    } catch (error: any) {
+      console.error('Failed to fetch movements', error);
+      Alert.alert(
+        'Error de Base de Datos',
+        `No se pudo cargar los datos. Detalle del error: ${error?.message || error?.details || JSON.stringify(error)}`
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  }, [filters.category]);
+
+  useEffect(() => {
+    fetchMovements();
+  }, [fetchMovements]);
+
   const filteredMovements = useMemo(() => {
-    const { searchQuery, category, motive } = filters;
+    const { searchQuery, motive } = filters;
     const normalizedQuery = searchQuery?.trim().toLowerCase() ?? '';
 
-    return INITIAL_MOCK_MOVEMENTS.filter((movement) => {
-      const matchesCategory = category === 'all' || movement.categoria === category;
+    return movements.filter((movement) => {
       const matchesMotive = motive === 'all' || movement.motivo === motive;
       const matchesQuery =
         normalizedQuery.length === 0 ||
-        movement.codigo.toLowerCase().includes(normalizedQuery) ||
-        movement.entidad_relacionada.toLowerCase().includes(normalizedQuery);
+        (movement.cliente && movement.cliente.toLowerCase().includes(normalizedQuery)) ||
+        movement.detalles?.some(d => 
+          d.codigo_producto.toLowerCase().includes(normalizedQuery) ||
+          d.nombre_producto.toLowerCase().includes(normalizedQuery)
+        );
 
-      return matchesCategory && matchesMotive && matchesQuery;
+      return matchesMotive && matchesQuery;
     });
-  }, [filters]);
+  }, [movements, filters]);
 
   const pagination = usePagination(filteredMovements.length, 10);
 
@@ -69,6 +59,8 @@ export function useMovementList(filters: MovementFilterValues) {
 
   return {
     movements: paginatedMovements,
+    isLoading,
     pagination,
+    refetch: fetchMovements
   };
 }

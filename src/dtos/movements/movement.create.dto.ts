@@ -8,6 +8,7 @@ export type MovementDetailCreateDto = {
 
 export type MovementCreateDto = {
   tipo: 'ENTRADA' | 'SALIDA' | 'AJUSTE';
-  observaciones?: string | null;
+  motivo: string | null;
+  cliente: string | null;
   detalles: MovementDetailCreateDto[];
 };
