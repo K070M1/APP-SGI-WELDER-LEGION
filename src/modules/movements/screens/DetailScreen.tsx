@@ -2,8 +2,6 @@ import React from 'react';
 import { View, ScrollView, TouchableOpacity, SafeAreaView, ActivityIndicator, Alert } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { ChevronLeft, Download, ArrowLeft, FileText, Calendar, User, Package } from 'lucide-react-native';
-import * as Print from 'expo-print';
-import * as Sharing from 'expo-sharing';
 
 import { Text } from '@/shared/components/ui/text';
 import { Button } from '@/shared/components/ui/button';
@@ -34,87 +32,10 @@ export function MovementDetailScreen() {
   const montoTotal = movement.detalles?.reduce((acc, d) => acc + ((d.cantidad || 0) * (d.precio_unitario || 0)), 0) || 0;
 
   const handleDownloadPDF = async () => {
-    try {
-      const htmlContent = `
-        <html>
-          <head>
-            <style>
-              body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #333; }
-              .header { text-align: center; margin-bottom: 40px; }
-              .title { font-size: 24px; font-weight: bold; color: #111; margin-bottom: 5px; }
-              .subtitle { font-size: 14px; color: #666; }
-              .info-box { border: 1px solid #e8e8e8; border-radius: 12px; padding: 20px; margin-bottom: 30px; }
-              .info-row { margin-bottom: 15px; }
-              .info-label { font-size: 11px; font-weight: bold; color: #999; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
-              .info-value { font-size: 14px; font-weight: bold; color: #333; }
-              table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-              th { text-align: left; padding: 12px; border-bottom: 2px solid #e8e8e8; font-size: 12px; color: #999; text-transform: uppercase; }
-              td { padding: 12px; border-bottom: 1px solid #e8e8e8; font-size: 14px; color: #333; }
-              .total-box { background-color: #333; color: white; border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
-              .total-label { font-size: 14px; font-weight: bold; letter-spacing: 1px; }
-              .total-value { font-size: 24px; font-weight: bold; color: #748FFC; }
-            </style>
-          </head>
-          <body>
-            <div class="header">
-              <div class="title">COMPROBANTE DE MOVIMIENTO</div>
-              <div class="subtitle">Mov-${movement.id.slice(0, 8).toUpperCase()} - ${movement.tipo}</div>
-            </div>
-            
-            <div class="info-box">
-              <div class="info-row">
-                <div class="info-label">Motivo / Entidad</div>
-                <div class="info-value">${movement.motivo || movement.tipo}</div>
-                <div style="font-size: 12px; color: #666; margin-top: 2px;">${movement.cliente || 'N/A'}</div>
-              </div>
-              <div class="info-row">
-                <div class="info-label">Fecha de Emisión</div>
-                <div class="info-value">${new Date(movement.fechaRegistro).toLocaleString()}</div>
-              </div>
-              <div class="info-row" style="margin-bottom: 0;">
-                <div class="info-label">Registrado Por</div>
-                <div class="info-value">${movement.usuarioNombre}</div>
-              </div>
-            </div>
-
-            <div class="info-label" style="margin-bottom: 10px; color: #333;">Productos Involucrados</div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Código</th>
-                  <th>Producto</th>
-                  <th>Cant.</th>
-                  <th>P. Unit</th>
-                  <th>Subtotal</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${movement.detalles.map(d => `
-                  <tr>
-                    <td><strong style="font-size:12px">${d.codigo_producto}</strong></td>
-                    <td>${d.nombre_producto}</td>
-                    <td><strong>${d.cantidad}</strong></td>
-                    <td>S/ ${(d.precio_unitario || 0).toFixed(2)}</td>
-                    <td><strong>S/ ${((d.cantidad || 0) * (d.precio_unitario || 0)).toFixed(2)}</strong></td>
-                  </tr>
-                `).join('')}
-              </tbody>
-            </table>
-
-            <div class="total-box">
-              <span class="total-label">VALOR TOTAL</span>
-              <span class="total-value">S/ ${montoTotal.toFixed(2)}</span>
-            </div>
-          </body>
-        </html>
-      `;
-
-      const { uri } = await Print.printToFileAsync({ html: htmlContent });
-      await Sharing.shareAsync(uri, { UTI: '.pdf', mimeType: 'application/pdf' });
-    } catch (error) {
-      console.error('Error generating PDF:', error);
-      Alert.alert('Error', 'No se pudo generar el PDF');
-    }
+    Alert.alert(
+      'En desarrollo',
+      'La generación de PDF se implementará más adelante para no afectar la compatibilidad de tu aplicación.'
+    );
   };
 
   return (
