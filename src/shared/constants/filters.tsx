@@ -43,16 +43,19 @@ export const MOVEMENT_MOTIVES: Record<MovementCategory, FilterOption[]> = {
     { value: 'COMPRA', label: 'Compra', description: 'Compra a Proveedor' },
     { value: 'DEVOLUCION', label: 'Devolución', description: 'Devolución de Cliente' },
     { value: 'AJUSTE_POSITIVO', label: 'Ajuste (+)', description: 'Ajuste de Inventario Positivo' },
+    { value: 'TRASPASO_ENTRADA', label: 'Traspaso (Ingreso)', description: 'Ingreso desde otro almacén' },
     { value: 'VENTA', label: 'Venta', description: 'Venta a Cliente' },
     { value: 'CONSUMO', label: 'Consumo', description: 'Consumo Interno' },
     { value: 'MERMA', label: 'Merma', description: 'Merma o Daño' },
     { value: 'AJUSTE_NEGATIVO', label: 'Ajuste (-)', description: 'Ajuste de Inventario Negativo' },
+    { value: 'TRASPASO_SALIDA', label: 'Traspaso (Salida)', description: 'Salida a otro almacén' },
   ],
   'ENTRADA': [
     { value: 'all', label: 'Todos', description: 'Todos los motivos' },
     { value: 'COMPRA', label: 'Compra', description: 'Compra a Proveedor' },
     { value: 'DEVOLUCION', label: 'Devolución', description: 'Devolución de Cliente' },
     { value: 'AJUSTE_POSITIVO', label: 'Ajuste (+)', description: 'Ajuste de Inventario Positivo' },
+    { value: 'TRASPASO_ENTRADA', label: 'Traspaso (Ingreso)', description: 'Ingreso desde otro almacén' },
   ],
   'SALIDA': [
     { value: 'all', label: 'Todos', description: 'Todos los motivos' },
@@ -60,5 +63,6 @@ export const MOVEMENT_MOTIVES: Record<MovementCategory, FilterOption[]> = {
     { value: 'CONSUMO', label: 'Consumo', description: 'Consumo Interno' },
     { value: 'MERMA', label: 'Merma', description: 'Merma o Daño' },
     { value: 'AJUSTE_NEGATIVO', label: 'Ajuste (-)', description: 'Ajuste de Inventario Negativo' },
+    { value: 'TRASPASO_SALIDA', label: 'Traspaso (Salida)', description: 'Salida a otro almacén' },
   ]
 };

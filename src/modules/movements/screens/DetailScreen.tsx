@@ -33,15 +33,13 @@ export function MovementDetailScreen() {
 
   const handleDownloadPDF = async () => {
     try {
+      Alert.alert('Generando...', 'Por favor espera unos segundos mientras se crea el PDF.');
+      
       const htmlContent = `
-        <!DOCTYPE html>
         <html>
           <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Comprobante de Movimiento</title>
             <style>
-              body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 20px; color: #333; max-width: 800px; margin: 0 auto; }
+              body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; padding: 40px; color: #333; }
               .header { text-align: center; margin-bottom: 40px; }
               .title { font-size: 24px; font-weight: bold; color: #111; margin-bottom: 5px; }
               .subtitle { font-size: 14px; color: #666; }
@@ -55,18 +53,9 @@ export function MovementDetailScreen() {
               .total-box { background-color: #333; color: white; border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center; }
               .total-label { font-size: 14px; font-weight: bold; letter-spacing: 1px; }
               .total-value { font-size: 24px; font-weight: bold; color: #748FFC; }
-              @media print {
-                body { padding: 0; }
-                .no-print { display: none; }
-              }
             </style>
           </head>
           <body>
-            <div class="no-print" style="background: #f8f9fa; padding: 15px; text-align: center; margin-bottom: 20px; border-radius: 8px;">
-              <p style="margin: 0 0 10px 0; color: #666;">Haz clic en el botón para guardar como PDF</p>
-              <button onclick="window.print()" style="background: #748FFC; color: white; border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; font-size: 16px; cursor: pointer;">Descargar PDF</button>
-            </div>
-
             <div class="header">
               <div class="title">COMPROBANTE DE MOVIMIENTO</div>
               <div class="subtitle">Mov-${movement.id.slice(0, 8).toUpperCase()} - ${movement.tipo}</div>
@@ -118,29 +107,47 @@ export function MovementDetailScreen() {
               <span class="total-label">VALOR TOTAL</span>
               <span class="total-value">S/ ${montoTotal.toFixed(2)}</span>
             </div>
-            
-            <script>
-              // Intenta abrir el diálogo de impresión automáticamente (funciona en algunos navegadores móviles)
-              setTimeout(() => { window.print(); }, 1000);
-            </script>
           </body>
         </html>
       `;
 
-      // Codificar el HTML a una URI de datos segura
-      const dataUri = `data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`;
+      // ======== CONFIGURACIÓN DEL API (Api2Pdf) ========
+      // Regístrate en portal.api2pdf.com para obtener tu API Key gratuita
+      const API_KEY = '1152c252-d72c-440b-8ce0-3d5ca6d9e948'; 
       
-      // Abrir en el navegador predeterminado del teléfono
-      const supported = await Linking.canOpenURL(dataUri);
-      
-      if (supported || Platform.OS === 'android') {
-        await Linking.openURL(dataUri);
-      } else {
-        Alert.alert('Error', 'Tu dispositivo no soporta abrir este documento directamente.');
+      if (API_KEY === 'TU_API_KEY_AQUI') {
+        Alert.alert(
+          'Falta configurar el API', 
+          'Para generar el PDF sin usar dependencias nativas, necesitas registrarte en Api2Pdf.com y pegar tu API Key en el archivo DetailScreen.tsx.'
+        );
+        return;
       }
-    } catch (error) {
-      console.error('Error opening PDF viewer:', error);
-      Alert.alert('Aviso', 'Abre esta aplicación en un navegador para descargar el PDF.');
+
+      const response = await fetch('https://v2.api2pdf.com/chrome/pdf/html', {
+        method: 'POST',
+        headers: {
+          'Authorization': API_KEY,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          html: htmlContent,
+          inline: false, // Volvemos a forzar descarga
+          fileName: `comprobante-${movement.id.slice(0, 8)}.pdf`
+        })
+      });
+
+      const result = await response.json();
+
+      if (result.FileUrl) {
+        // Volvemos a como estaba antes para que simplemente lo descargue
+        await Linking.openURL(result.FileUrl);
+      } else {
+        throw new Error('El API no devolvió un link válido');
+      }
+
+    } catch (error: any) {
+      console.error('Error generating PDF:', error);
+      Alert.alert('Error', error?.message || 'Hubo un problema al contactar el API para el PDF.');
     }
   };
 
@@ -250,9 +257,9 @@ export function MovementDetailScreen() {
         {/* BOTONES DE ACCIÓN */}
         <View className="flex-row gap-3">
           <Button
-            variant="outline"
+            variant="ghost"
             onPress={() => navigation.goBack()}
-            className="flex-1 h-14 rounded-2xl bg-white border border-[#E8E8E8] flex-row items-center justify-center shadow-sm"
+            className="flex-1 h-14 rounded-2xl bg-[#F1F5F9] flex-row items-center justify-center"
           >
             <Icon as={ArrowLeft} size={20} className="text-[#333333] mr-2" />
             <Text className="text-[#333333] font-bold text-[15px]">Volver</Text>

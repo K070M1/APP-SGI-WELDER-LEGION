@@ -181,7 +181,7 @@ export function MovementFormScreen() {
 
             {/* BOTONES DE ACCIÓN */}
             <View className="flex-row gap-3">
-              <Button variant="outline" onPress={() => navigation.goBack()} className="flex-1 h-12 rounded-xl flex-row items-center justify-center bg-[#F1F5F9] border-0">
+              <Button variant="ghost" onPress={() => navigation.goBack()} className="flex-1 h-12 rounded-xl flex-row items-center justify-center bg-[#F1F5F9]">
                 <Text className="text-[#1E293B] font-bold">Cancelar</Text>
               </Button>
               <Button 
