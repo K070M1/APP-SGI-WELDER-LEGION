@@ -65,6 +65,10 @@ export class ProductService {
       if (error) {
         throw error;
       }
+      console.log(
+        'PRODUCTOS_CON_ESTADO:',
+        JSON.stringify(data, null, 2)
+      );
 
       let products: ProductListItem[] = (data ?? []).map((row: any) => ({
         id: row.id,
@@ -110,6 +114,30 @@ export class ProductService {
           (product) =>
             String(product.id_estado) === estadoBuscado ||
             product.estado.toUpperCase() === estadoBuscado
+        );
+      }
+      // Filtrar por subcategoría.
+      if (
+        filters.id_categoria &&
+        filters.id_categoria !== 'all'
+      ) {
+        products = products.filter(
+          (product) =>
+            product.id_subcategoria === filters.id_categoria
+        );
+      }
+
+      // Filtrar por nivel de stock antes de paginar.
+      if (filters.stock_filter === 'low_stock') {
+        products = products.filter(
+          (product) =>
+            product.stock <= product.stock_min
+        );
+      }
+
+      if (filters.stock_filter === 'with_stock') {
+        products = products.filter(
+          (product) => product.stock > 0
         );
       }
 
