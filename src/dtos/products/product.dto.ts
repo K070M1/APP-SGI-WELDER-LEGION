@@ -10,6 +10,10 @@ export type ProductListItem = AuditedEntity & {
   stock_min: number;
   id_estado: number;
   estado: string;
+  descripcion?: string | null;
+  id_marca?: string;
+  id_subcategoria?: string;
+  id_moneda?: string;
 };
 
 export type ProductDetail = ProductListItem & {

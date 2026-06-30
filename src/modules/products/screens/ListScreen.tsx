@@ -42,9 +42,11 @@ export function ProductListScreen() {
   const pagination = usePagination(total, 10);
 
   const [stockFilter, setStockFilter] = React.useState({ value: 'all', label: 'Todos' });
-
   React.useEffect(() => {
-    search({ pagina: 1, tamanio: 10 });
+    search({
+      pagina: 1,
+      tamanio: Number(pagination.pageSize),
+    });
   }, []);
 
   const filteredProducts = React.useMemo(() => {
@@ -53,13 +55,6 @@ export function ProductListScreen() {
     if (stockFilter.value === 'with_stock') return products.filter(p => p.stock > p.stock_min);
     return products;
   }, [products, stockFilter]);
-
-  const pageSizeNumber = Number(pagination.pageSize);
-  const currentPageSafe = Math.min(pagination.currentPage, pagination.totalPages);
-  const paginatedProducts = filteredProducts.slice(
-    (currentPageSafe - 1) * pageSizeNumber,
-    currentPageSafe * pageSizeNumber
-  );
 
   const handleIncrementStock = (id_producto: string) => {
     setProducts(prev => prev.map(p => p.id_producto === id_producto ? { ...p, stock: p.stock + 1 } : p));
@@ -70,11 +65,59 @@ export function ProductListScreen() {
   };
 
   const handleShowQR = (product: ProductListItem) => {
+    const ultimaActualizacion = product.fecha_edicion
+    ? new Date(product.fecha_edicion).toLocaleString('es-PE')
+    : 'No registrada';
+
+    const qrData = {
+      nombre: product.nombre,
+      descripcion: product.descripcion ?? '',
+      precio: product.precio,
+      stock: product.stock,
+      stockMin: product.stock_min,
+      estado: product.estado,
+      fechaCreacion: product.fecha_creacion ?? '',
+      fechaEdicion: product.fecha_edicion ?? '',
+    };
+
     showAlert({
       isQR: true,
-      title: 'Código QR',
-      text: product.nombre,
+      title: 'Información del producto',
       qrCode: product.codigo,
+      qrValue: JSON.stringify(qrData),
+
+    qrDetails: [
+        {
+          label: 'Nombre del producto',
+          value: product.nombre || 'No registrado',
+        },
+        {
+          label: 'Descripción',
+          value:
+            product.descripcion?.trim() ||
+            'No registrada',
+        },
+        {
+          label: 'Precio',
+          value: `S/ ${Number(product.precio).toFixed(2)}`,
+        },
+        {
+          label: 'Stock actual',
+          value: String(product.stock),
+        },
+        {
+          label: 'Stock mínimo',
+          value: String(product.stock_min),
+        },
+        {
+          label: 'Estado',
+          value: product.estado || 'No registrado',
+        },
+        {
+          label: 'Última actualización',
+          value: ultimaActualizacion,
+        },
+      ],
     });
   };
 
@@ -222,7 +265,7 @@ export function ProductListScreen() {
         {/* Lista */}
         {!loading && !notFoundMessage && (
           <FlatList
-            data={paginatedProducts}
+            data={filteredProducts}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
             contentContainerStyle={{
