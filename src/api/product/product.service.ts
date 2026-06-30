@@ -65,10 +65,6 @@ export class ProductService {
       if (error) {
         throw error;
       }
-      console.log(
-        'PRODUCTOS_CON_ESTADO:',
-        JSON.stringify(data, null, 2)
-      );
 
       let products: ProductListItem[] = (data ?? []).map((row: any) => ({
         id: row.id,
@@ -138,6 +134,15 @@ export class ProductService {
       if (filters.stock_filter === 'with_stock') {
         products = products.filter(
           (product) => product.stock > 0
+        );
+      }
+      if (
+        filters.id_marca &&
+        filters.id_marca !== 'all'
+      ) {
+        products = products.filter(
+          (product) =>
+            product.id_marca === filters.id_marca
         );
       }
 
