@@ -21,15 +21,21 @@ export class MovementService {
         id,
         fechaRegistro,
         tipo,
-        observaciones,
+        motivo,
+        cliente,
         usuario (
           nombreUsuario
         ),
         detalle_movimiento (
+          id,
           cantidad,
+          stockInicial,
+          stockFinal,
           producto (
+            id,
             nombre,
-            codigo
+            codigo,
+            precio
           )
         )
       `)
@@ -47,26 +53,84 @@ export class MovementService {
     }
 
     return (data || []).map((row: any) => {
-      const detalle = row.detalle_movimiento?.[0] || {};
-      const producto = detalle.producto || {};
+      const detalles = (row.detalle_movimiento || []).map((det: any) => ({
+        id_detalle: det.id,
+        id_producto: det.producto?.id || '',
+        nombre_producto: det.producto?.nombre || 'Sin producto',
+        codigo_producto: det.producto?.codigo || 'N/A',
+        cantidad: det.cantidad,
+        stock_inicial: det.stockInicial,
+        stock_final: det.stockFinal,
+        precio_unitario: det.producto?.precio || 0
+      }));
       const usuario = row.usuario || {};
 
       return {
         id: row.id,
         tipo: row.tipo || 'AJUSTE',
-        observaciones: row.observaciones || 'N/A',
+        motivo: row.motivo || null,
+        cliente: row.cliente || null,
         fechaRegistro: row.fechaRegistro,
-        productoNombre: producto.nombre || 'Sin producto',
-        productoCodigo: producto.codigo || 'N/A',
-        cantidad: detalle.cantidad || 0,
-        usuarioNombre: usuario.nombreUsuario || 'admin',
+        usuarioNombre: usuario.nombreUsuario || 'Usuario Desconocido',
+        detalles
       } as MovementListItemDTO;
     });
   }
 
-  async getMovementById(id: string) {
-    const url = apiEndpoint(ENDPOINTS.MOVEMENTS_BY_ID, { id });
-    return api.getOne<MovementListItem>(url);
+  async getMovementById(id: string): Promise<MovementListItemDTO> {
+    const { data, error } = await insforge.database
+      .from('movimiento')
+      .select(`
+        id,
+        fechaRegistro,
+        tipo,
+        motivo,
+        cliente,
+        usuario (
+          nombreUsuario
+        ),
+        detalle_movimiento (
+          id,
+          cantidad,
+          stockInicial,
+          stockFinal,
+          producto (
+            id,
+            nombre,
+            codigo,
+            precio
+          )
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching movement by id:', error);
+      throw error;
+    }
+
+    const row = data;
+    const detalles = (row.detalle_movimiento || []).map((det: any) => ({
+      id_detalle: det.id,
+      id_producto: det.producto?.id || '',
+      nombre_producto: det.producto?.nombre || 'Sin producto',
+      codigo_producto: det.producto?.codigo || 'N/A',
+      cantidad: det.cantidad,
+      stock_inicial: det.stockInicial,
+      stock_final: det.stockFinal,
+      precio_unitario: det.producto?.precio || 0
+    }));
+    
+    return {
+      id: row.id,
+      tipo: row.tipo || 'AJUSTE',
+      motivo: row.motivo || null,
+      cliente: row.cliente || null,
+      fechaRegistro: row.fechaRegistro,
+      usuarioNombre: row.usuario?.nombreUsuario || 'Usuario Desconocido',
+      detalles
+    } as MovementListItemDTO;
   }
 
   async createMovement(payload: MovementCreateDto) {
@@ -82,7 +146,8 @@ export class MovementService {
         .from('movimiento')
         .insert({
           tipo: payload.tipo,
-          observaciones: payload.observaciones,
+          motivo: payload.motivo,
+          cliente: payload.cliente,
           id_usuario: userId
         })
         .select()
@@ -98,6 +163,8 @@ export class MovementService {
         id_movimiento: movData.id,
         id_producto: d.id_producto,
         cantidad: d.cantidad,
+        stockInicial: d.stockInicial,
+        stockFinal: d.stockFinal,
         observaciones: d.observaciones
       }));
 

@@ -6,7 +6,7 @@ import { Package, ArrowLeftRight, Users, UserCircleIcon, LayoutDashboard } from 
 
 import { ROUTES } from './routes';
 import { ProductListScreen } from '@/modules/products/screens/ListScreen';
-import MovementsListScreen from '@/modules/movements/screens/MovementsListScreen';
+import { MovementListScreen } from '@/modules/movements/screens/ListScreen';
 import { UserListScreen } from '@/modules/users/screens/ListScreen';
 
 import { UserMenu } from '@/shared/components/composed/user-menu';
@@ -66,7 +66,7 @@ export function MainTabs() {
         (user?.rol === "ADMIN" || user?.rol === "ALMACENERO") && (
           <Tab.Screen
             name={ROUTES.MOVEMENTS.LIST}
-            component={MovementsListScreen}
+            component={MovementListScreen}
             options={{
               tabBarLabel: 'MOVIMIENTOS',
               tabBarIcon: ({ color, size }) => <ArrowLeftRight color={color} size={size} />,

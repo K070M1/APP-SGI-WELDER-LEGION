@@ -9,10 +9,11 @@ import type { MovementListItemDTO, MovementType } from '@/dtos/movements/movemen
 
 interface MovementCardProps {
   movement: MovementListItemDTO;
+  onPressView?: () => void;
 }
 
-export function MovementCard({ movement }: MovementCardProps) {
-  const { tipo, productoCodigo, productoNombre, cantidad, observaciones, fechaRegistro, usuarioNombre } = movement;
+export function MovementCard({ movement, onPressView }: MovementCardProps) {
+  const { tipo, motivo, cliente, fechaRegistro, usuarioNombre, detalles } = movement;
 
   // Configuración visual basada en la categoría
   const typeConfig: Record<MovementType, { 
@@ -58,6 +59,10 @@ export function MovementCard({ movement }: MovementCardProps) {
     ? dateObj.toISOString().split('T')[0] 
     : fechaRegistro;
 
+  const title = detalles?.length === 1 ? detalles[0].codigo_producto : `Movimiento ${movement.id.slice(0, 8)}`;
+  const subtitle = cliente ? `Cliente: ${cliente}` : (detalles?.length === 1 ? detalles[0].nombre_producto : `${detalles?.length || 0} productos diferentes`);
+  const totalCantidad = detalles?.reduce((acc, d) => acc + (d.cantidad || 0), 0) || 0;
+
   return (
     <View className="mb-4 rounded-3xl border border-border bg-card shadow-sm overflow-hidden p-4">
       
@@ -73,7 +78,7 @@ export function MovementCard({ movement }: MovementCardProps) {
           {/* Fila 1: Código y Badge */}
           <View className="flex-row justify-between items-start">
             <Text className="text-base font-bold text-foreground">
-              {productoCodigo}
+              {title}
             </Text>
             <Badge variant={config.badgeVariant} className={cn('px-2 py-0.5 rounded-md', config.bgBadge)}>
               <Text className={cn('text-[10px] font-bold uppercase tracking-wider', config.colorText)}>
@@ -84,16 +89,16 @@ export function MovementCard({ movement }: MovementCardProps) {
 
           {/* Fila 2: Entidad */}
           <Text className="text-sm text-muted-foreground mt-1 mb-2" numberOfLines={1}>
-            {productoNombre}
+            {subtitle}
           </Text>
 
           {/* Fila 3: Items y Motivo */}
           <View className="flex-row justify-between items-center mt-1">
             <Text className="text-[15px] font-bold text-[#748FFC]">
-              {cantidad} Items
+              {totalCantidad} Items
             </Text>
             <Text className="text-sm font-bold text-foreground uppercase tracking-wide">
-              {observaciones && observaciones !== 'N/A' ? observaciones : tipo}
+              {motivo ? motivo : tipo}
             </Text>
           </View>
         </View>
@@ -108,7 +113,7 @@ export function MovementCard({ movement }: MovementCardProps) {
           {formattedDate} • {usuarioNombre}
         </Text>
         
-        <Button variant="outline" size="sm" className="h-8 px-4 rounded-2xl flex-row items-center space-x-1.5 border-border">
+        <Button onPress={onPressView} variant="outline" size="sm" className="h-8 px-4 rounded-2xl flex-row items-center space-x-1.5 border-border">
           <Eye size={14} className="text-foreground" />
           <Text className="text-xs font-bold ml-1.5">Ver</Text>
         </Button>

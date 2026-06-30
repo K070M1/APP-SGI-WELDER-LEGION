@@ -34,7 +34,8 @@ export function useMovementForm(initialData?: Partial<MovementFormValues>) {
         nombre: product.nombre,
         codigo: product.codigo,
         cantidad: 1,
-        precio_unitario: product.precio
+        precio_unitario: product.precio,
+        stock: product.stock || 0
       };
       setValue('items', [...selectedItems, newItem]);
     }

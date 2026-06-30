@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, FlatList, TextInput, Platform } from 'react-native';
+import React, { useState } from 'react';
+import { View, FlatList, TextInput, Platform, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Search, Plus, FilterIcon } from 'lucide-react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -13,6 +13,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectGroup, SelectI
 import { MOVEMENT_CATEGORIES, MOVEMENT_MOTIVES } from '@/shared/constants/filters';
 import { ROUTES } from '@/navigation/routes';
 import { Pagination } from '@/shared/components/composed/pagination';
+import type { MovementListItemDTO } from '@/dtos/movements/movement.dto';
 
 import { useMovementList } from '../hooks/list/useMovementList';
 import { useMovementListFilterForm } from '../hooks/list/useMovementListFilterForm';
@@ -23,7 +24,7 @@ export function MovementListScreen() {
 
   // Extraemos toda la lógica desde nuestro Custom Hook
   const { form, values, resetFilters } = useMovementListFilterForm();
-  const { movements, pagination } = useMovementList(values);
+  const { movements, isLoading, pagination } = useMovementList(values);
 
   // Los motivos disponibles dependen de la categoría seleccionada
   const availableMotives = MOVEMENT_MOTIVES[values.category] || MOVEMENT_MOTIVES['all'];
@@ -149,24 +150,30 @@ export function MovementListScreen() {
         </View>
 
         {/* Lista de Movimientos con Paginación Inyectada */}
-        <FlatList
-          data={movements}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: Platform.OS === 'ios' ? 120 : 100, paddingHorizontal: 2 }}
-          renderItem={({ item }) => (
-            <MovementCard
-              movement={item}
-              onViewDetail={(id) => navigation.navigate(ROUTES.MOVEMENTS.DETAIL, { id })}
-            />
-          )}
-          ListEmptyComponent={() => (
-            <View className="mt-10 items-center px-4">
-              <Text className="text-base font-semibold text-[#333333] mb-2">No se encontraron Movimientos</Text>
-              <Text className="text-sm text-[#6B7280] text-center">Ajusta los filtros o intenta con otro término de búsqueda.</Text>
-            </View>
-          )}
-        />
+        {isLoading ? (
+          <View className="flex-1 items-center justify-center mt-10">
+            <ActivityIndicator size="large" color="#748FFC" />
+          </View>
+        ) : (
+          <FlatList
+            data={movements}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingBottom: Platform.OS === 'ios' ? 120 : 100, paddingHorizontal: 2 }}
+            renderItem={({ item }) => (
+              <MovementCard
+                movement={item}
+                onViewDetail={() => navigation.navigate(ROUTES.MOVEMENTS.DETAIL, { id: item.id })}
+              />
+            )}
+            ListEmptyComponent={() => (
+              <View className="mt-10 items-center px-4">
+                <Text className="text-base font-semibold text-[#333333] mb-2">No se encontraron Movimientos</Text>
+                <Text className="text-sm text-[#6B7280] text-center">Ajusta los filtros o intenta con otro término de búsqueda.</Text>
+              </View>
+            )}
+          />
+        )}
 
         <View className="border-t border-slate-200 mt-5 mb-2" />
 

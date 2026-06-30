@@ -30,11 +30,21 @@ export function MovementFormScreen() {
       setIsSubmitting(true);
       await movementService.createMovement({
         tipo: data.categoria,
-        observaciones: `Motivo: ${data.motivo} - Entidad: ${data.entidad_relacionada}`,
-        detalles: data.items.map(item => ({
-          id_producto: item.id_producto,
-          cantidad: item.cantidad
-        }))
+        motivo: data.motivo,
+        cliente: data.entidad_relacionada,
+        detalles: data.items.map(item => {
+          const stockInicial = item.stock || 0;
+          let stockFinal = stockInicial;
+          if (data.categoria === 'ENTRADA') stockFinal += item.cantidad;
+          else if (data.categoria === 'SALIDA') stockFinal -= item.cantidad;
+
+          return {
+            id_producto: item.id_producto,
+            cantidad: item.cantidad,
+            stockInicial,
+            stockFinal
+          };
+        })
       });
       
       Alert.alert('Éxito', 'El movimiento se registró correctamente.', [
@@ -172,7 +182,7 @@ export function MovementFormScreen() {
 
             {/* BOTONES DE ACCIÓN */}
             <View className="flex-row gap-3">
-              <Button variant="outline" onPress={() => navigation.goBack()} className="flex-1 h-12 rounded-xl flex-row items-center justify-center bg-[#F1F5F9] border-0">
+              <Button variant="ghost" onPress={() => navigation.goBack()} className="flex-1 h-12 rounded-xl flex-row items-center justify-center bg-[#F1F5F9]">
                 <Text className="text-[#1E293B] font-bold">Cancelar</Text>
               </Button>
               <Button 
