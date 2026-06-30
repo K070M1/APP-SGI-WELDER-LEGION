@@ -83,8 +83,8 @@ export function ProductFormScreen() {
           name: 'CONFIRMAR',
           color: 'blue',
           onClick: async () => {
-            const success = await save(data, productId);
-            if (success) {
+            const result = await save(data, productId);
+            if (result.success) {
               showAlert({
                 icon: 'success',
                 title: isEditing ? '¡Actualizado!' : '¡Creado!',
@@ -106,11 +106,11 @@ export function ProductFormScreen() {
               showAlert({
                 icon: 'error',
                 title: 'Error',
-                text: 'Ocurrió un error al guardar el producto. Inténtalo de nuevo.',
+                text: result.message || 'Ocurrió un error al guardar el producto. Inténtalo de nuevo.',
                 actions: [{ name: 'ACEPTAR', color: 'blue', onClick: () => true }],
               });
             }
-            return true;
+            return false;
           },
         },
       ],

@@ -22,19 +22,32 @@ export function useProductForm() {
     }
   }, []);
 
-  const save = useCallback(async (values: ProductCreateFormValues | ProductUpdateFormValues, id?: string): Promise<boolean> => {
+  const save = useCallback(async (values: ProductCreateFormValues | ProductUpdateFormValues, id?: string): Promise<{ success: boolean, message?: string }> => {
     setIsSubmitting(true);
 
     try {
+      if (!id) {
+        // Verificar unicidad de producto por código
+        const checkResponse = await productService.getProducts({ buscar: values.codigo });
+        if (checkResponse.isOk() && checkResponse.data) {
+          const exists = checkResponse.data.some(
+            p => p.codigo.toLowerCase() === values.codigo?.toLowerCase() || p.nombre.toLowerCase() === values.nombre?.toLowerCase()
+          );
+          if (exists) {
+            return { success: false, message: 'Ya existe un producto con este nombre o código SKU' };
+          }
+        }
+      }
+
       if (id) {
         const response = await productService.updateProduct(id, values as ProductUpdateFormValues);
-        return response.isOk();
+        return { success: response.isOk() };
       }
 
       const response = await productService.createProduct(values as ProductCreateFormValues);
-      return response.isOk();
+      return { success: response.isOk() };
     } catch (error) {
-      return false;
+      return { success: false };
     } finally {
       setIsSubmitting(false);
     }
