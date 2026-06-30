@@ -257,47 +257,21 @@ export function UiOverlayProvider({ children }: { children: ReactNode }) {
             )}
           </DialogHeader>
 
-          <ScrollView
-            className="w-full mt-4"
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{
-              paddingBottom: 20,
-            }}
-          >
-            {/* Detalles completos del producto */}
-            {alertConfig.qrDetails &&
-              alertConfig.qrDetails.length > 0 && (
-                <View className="w-full rounded-2xl bg-slate-50 p-4">
-                  {alertConfig.qrDetails.map((detail, index) => {
-                    const isLast =
-                      index === alertConfig.qrDetails!.length - 1;
-
-                    return (
-                      <View
-                        key={`${detail.label}-${index}`}
-                        className={
-                          isLast
-                            ? ''
-                            : 'mb-3 border-b border-slate-200 pb-3'
-                        }
-                      >
-                        <Text className="text-xs font-medium uppercase tracking-wide text-slate-400">
-                          {detail.label}
-                        </Text>
-
-                        <Text className="mt-1 text-sm font-semibold leading-5 text-slate-800">
-                          {detail.value?.trim() || 'No registrado'}
-                        </Text>
-                      </View>
-                    );
-                  })}
-                </View>
+          <View className="items-center justify-center py-6">
+            <View className="p-6 bg-white rounded-3xl border border-slate-200 items-center justify-center shadow-sm min-h-[220px] min-w-[220px]">
+              {alertConfig.qrCode ? (
+                <QRCode
+                  value={alertConfig.qrCode}
+                  size={160}
+                  color="#1A1A2E"
+                  backgroundColor="#FFFFFF"
+                  quietZone={8}
+                />
+              ) : (
+                <Icon as={QrCode} size={64} className="text-slate-300" />
               )}
-
-            {/* Código QR al final */}
-            <View className="mt-6 items-center">
-              <Text className="mb-4 text-base font-bold text-slate-800">
-                Código QR del producto
+              <Text className="text-slate-600 font-semibold mt-4 tracking-wider text-sm uppercase">
+                {alertConfig.qrCode}
               </Text>
 
               <View className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">

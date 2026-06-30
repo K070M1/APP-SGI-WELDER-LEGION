@@ -83,8 +83,8 @@ export function ProductFormScreen() {
           name: 'CONFIRMAR',
           color: 'blue',
           onClick: async () => {
-            const success = await save(data, productId);
-            if (success) {
+            const result = await save(data, productId);
+            if (result.success) {
               showAlert({
                 icon: 'success',
                 title: isEditing ? '¡Actualizado!' : '¡Creado!',
@@ -106,11 +106,11 @@ export function ProductFormScreen() {
               showAlert({
                 icon: 'error',
                 title: 'Error',
-                text: 'Ocurrió un error al guardar el producto. Inténtalo de nuevo.',
+                text: result.message || 'Ocurrió un error al guardar el producto. Inténtalo de nuevo.',
                 actions: [{ name: 'ACEPTAR', color: 'blue', onClick: () => true }],
               });
             }
-            return true;
+            return false;
           },
         },
       ],
@@ -203,7 +203,7 @@ export function ProductFormScreen() {
                         value={selectedOption ? { value, label: selectedOption.label } : undefined}
                         onValueChange={(opt: any) => onChange(opt?.value)}
                       >
-                        <SelectTrigger className="rounded-xl bg-white border border-[#E8E8E8] h-12">
+                        <SelectTrigger className={`rounded-xl bg-white border h-12 ${errors.id_marca ? 'border-[#FF8787]' : 'border-[#E8E8E8]'}`}>
                           <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent align="center" sideOffset={8} className="w-full rounded-xl border-[#E8E8E8]">
@@ -237,7 +237,7 @@ export function ProductFormScreen() {
                         value={selectedOption ? { value, label: selectedOption.label } : undefined}
                         onValueChange={(opt: any) => onChange(opt?.value)}
                       >
-                        <SelectTrigger className="rounded-xl bg-white border border-[#E8E8E8] h-12">
+                        <SelectTrigger className={`rounded-xl bg-white border h-12 ${errors.id_subcategoria ? 'border-[#FF8787]' : 'border-[#E8E8E8]'}`}>
                           <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent align="center" sideOffset={8} className="w-full rounded-xl border-[#E8E8E8]">
@@ -317,7 +317,7 @@ export function ProductFormScreen() {
                         value={selectedOption ? { value, label: selectedOption.label } : undefined}
                         onValueChange={(opt: any) => onChange(opt?.value)}
                       >
-                        <SelectTrigger className="rounded-xl bg-white border border-[#E8E8E8] h-12">
+                        <SelectTrigger className={`rounded-xl bg-white border h-12 ${errors.id_moneda ? 'border-[#FF8787]' : 'border-[#E8E8E8]'}`}>
                           <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent align="center" sideOffset={8} className="w-full rounded-xl border-[#E8E8E8]">
@@ -352,7 +352,7 @@ export function ProductFormScreen() {
                         value={selectedOption ? { value: stringValue, label: selectedOption.label } : undefined}
                         onValueChange={(opt: any) => onChange(opt?.value === 'active' ? 1 : 0)}
                       >
-                        <SelectTrigger className="rounded-xl bg-white border border-[#E8E8E8] h-12">
+                        <SelectTrigger className={`rounded-xl bg-white border h-12 ${errors.id_estado ? 'border-[#FF8787]' : 'border-[#E8E8E8]'}`}>
                           <SelectValue placeholder="Seleccione" />
                         </SelectTrigger>
                         <SelectContent align="center" sideOffset={8} className="w-full rounded-xl border-[#E8E8E8]">
