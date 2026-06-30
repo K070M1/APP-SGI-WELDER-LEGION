@@ -80,19 +80,19 @@ export function MainTabs() {
       <Tab.Screen
         name={ROUTES.DASHBOARD.LIST}
         component={DashboardScreen}
-        options={{
+        options={({ navigation }) => ({
           tabBarButton: () => (
             <View className="flex-1 items-center justify-center">
               <TouchableOpacity
                 activeOpacity={0.9}
-                onPress={() => navigation.navigate(ROUTES.DASHBOARD.LIST as never)}
+                onPress={() => navigation.navigate(ROUTES.DASHBOARD.LIST)}
                 className="-mt-8 bg-[#748FFC] rounded-full p-3.5 elevation-md shadow-lg shadow-blue-500/30"
               >
-                <LayoutDashboard color="#ffffff" size={24} />
+                <LayoutDashboard color="#fff" size={24} />
               </TouchableOpacity>
             </View>
-          )
-        }}
+          ),
+        })}
       />
 
       {/* 4. USUARIOS */}
