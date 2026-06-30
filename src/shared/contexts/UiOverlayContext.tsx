@@ -6,6 +6,7 @@ import { Text } from '@/shared/components/ui/text';
 import { View } from 'react-native';
 import { AlertCircleIcon, CheckCircle2, Loader, QrCode } from 'lucide-react-native';
 import { Icon } from '@/shared/components/ui/icon';
+import QRCode from 'react-native-qrcode-svg';
 
 export interface AlertAction {
   name: string;
@@ -244,9 +245,19 @@ export function UiOverlayProvider({ children }: { children: ReactNode }) {
           </DialogHeader>
 
           <View className="items-center justify-center py-6">
-            <View className="size-56 bg-slate-50 rounded-3xl border border-slate-200 items-center justify-center shadow-sm">
-              <Icon as={QrCode} size={64} className="text-slate-300" />
-              <Text className="text-slate-400 font-semibold mt-4 tracking-wider text-xs uppercase">
+            <View className="p-6 bg-white rounded-3xl border border-slate-200 items-center justify-center shadow-sm min-h-[220px] min-w-[220px]">
+              {alertConfig.qrCode ? (
+                <QRCode
+                  value={alertConfig.qrCode}
+                  size={160}
+                  color="#1A1A2E"
+                  backgroundColor="#FFFFFF"
+                  quietZone={8}
+                />
+              ) : (
+                <Icon as={QrCode} size={64} className="text-slate-300" />
+              )}
+              <Text className="text-slate-600 font-semibold mt-4 tracking-wider text-sm uppercase">
                 {alertConfig.qrCode}
               </Text>
             </View>

@@ -196,8 +196,17 @@ function handleMockRequest<T>(
 
   return new Promise<unknown>((resolve) => {
     setTimeout(() => {
+      const cleanUrl = url.split('?')[0];
+
       // Rutas de PRODUCTOS
-      if (url.includes('/productos') && method === 'GET' && !url.includes(':')) {
+      if (cleanUrl.endsWith('/productos/select') && method === 'GET') {
+        const { MOCK_PRODUCTS } = require('./mock-data');
+        resolve({
+          isOk: () => true,
+          getMessage: () => '',
+          data: MOCK_PRODUCTS as T[],
+        });
+      } else if (cleanUrl.endsWith('/productos') && method === 'GET') {
         const { MOCK_PRODUCTS } = require('./mock-data');
         resolve({
           isOk: () => true,
@@ -206,29 +215,92 @@ function handleMockRequest<T>(
           data: MOCK_PRODUCTS as T[],
           total: MOCK_PRODUCTS.length,
         });
-      } else if (url.includes('/productos/:id') && method === 'GET') {
+      } else if (cleanUrl.includes('/productos/') && method === 'GET') {
         const { MOCK_PRODUCT_DETAIL } = require('./mock-data');
-        const id = url.split('/').pop();
-        const detail = Object.values(MOCK_PRODUCT_DETAIL)?.[0];
+        const id = cleanUrl.split('/').pop() || '';
+        const detail = MOCK_PRODUCT_DETAIL[id];
         resolve({
           isOk: () => !!detail,
           getMessage: () => detail ? '' : 'Producto no encontrado',
           data: detail || null,
         });
-      } else if (url.includes('/productos') && method === 'DELETE') {
+      } else if (cleanUrl.includes('/productos/') && method === 'DELETE') {
+        const { MOCK_PRODUCTS, MOCK_PRODUCT_DETAIL } = require('./mock-data');
+        const id = cleanUrl.split('/').pop() || '';
+        const idx = MOCK_PRODUCTS.findIndex((p: any) => p.id_producto === id);
+        if (idx !== -1) {
+          MOCK_PRODUCTS.splice(idx, 1);
+        }
+        delete MOCK_PRODUCT_DETAIL[id];
+
         const checkStatus = new CheckStatus();
         checkStatus.status = API_RESPONSE_STATUS.Ok;
         resolve(checkStatus);
-      } else if (url.includes('/productos') && method === 'POST') {
+      } else if (cleanUrl.endsWith('/productos') && method === 'POST') {
+        const { MOCK_PRODUCTS, MOCK_PRODUCT_DETAIL } = require('./mock-data');
+        const newId = `prod-${Math.random().toString(36).substr(2, 9)}`;
+        const newProduct = {
+          id: Math.random().toString(36).substr(2, 9),
+          id_producto: newId,
+          nombre: data.nombre,
+          codigo: data.codigo,
+          precio: Number(data.precio),
+          stock: 0,
+          stock_min: Number(data.stock_min),
+          id_estado: Number(data.id_estado),
+          estado: Number(data.id_estado) === 1 ? 'ACTIVO' : 'INACTIVO',
+          fecha_creacion: new Date().toISOString().split('T')[0],
+          usuario_creacion: 'admin',
+        };
+        MOCK_PRODUCTS.push(newProduct);
+        MOCK_PRODUCT_DETAIL[newId] = {
+          ...newProduct,
+          descripcion: data.descripcion || null,
+          id_marca: data.id_marca,
+          nombre_marca: 'Marca Genérica',
+          id_subcategoria: data.id_subcategoria,
+          nombre_subcategoria: 'Categoría Genérica',
+          id_moneda: data.id_moneda,
+          simbolo_moneda: data.id_moneda === 'usd' ? '$' : 'S/',
+        };
         resolve({
           isOk: () => true,
           getMessage: () => 'Creado correctamente',
-          data: {
-            id: Math.random().toString(36).substr(2, 9),
-            ...data,
-          },
+          data: newProduct,
         });
-      } else if (url.includes('/productos') && method === 'PUT') {
+      } else if (cleanUrl.includes('/productos/') && method === 'PUT') {
+        const { MOCK_PRODUCTS, MOCK_PRODUCT_DETAIL } = require('./mock-data');
+        const id = cleanUrl.split('/').pop() || '';
+
+        const idx = MOCK_PRODUCTS.findIndex((p: any) => p.id_producto === id);
+        if (idx !== -1) {
+          MOCK_PRODUCTS[idx] = {
+            ...MOCK_PRODUCTS[idx],
+            nombre: data.nombre ?? MOCK_PRODUCTS[idx].nombre,
+            codigo: data.codigo ?? MOCK_PRODUCTS[idx].codigo,
+            precio: data.precio !== undefined ? Number(data.precio) : MOCK_PRODUCTS[idx].precio,
+            stock_min: data.stock_min !== undefined ? Number(data.stock_min) : MOCK_PRODUCTS[idx].stock_min,
+            id_estado: data.id_estado !== undefined ? Number(data.id_estado) : MOCK_PRODUCTS[idx].id_estado,
+            estado: (data.id_estado !== undefined ? Number(data.id_estado) : MOCK_PRODUCTS[idx].id_estado) === 1 ? 'ACTIVO' : 'INACTIVO',
+          };
+        }
+
+        if (MOCK_PRODUCT_DETAIL[id]) {
+          MOCK_PRODUCT_DETAIL[id] = {
+            ...MOCK_PRODUCT_DETAIL[id],
+            nombre: data.nombre ?? MOCK_PRODUCT_DETAIL[id].nombre,
+            codigo: data.codigo ?? MOCK_PRODUCT_DETAIL[id].codigo,
+            precio: data.precio !== undefined ? Number(data.precio) : MOCK_PRODUCT_DETAIL[id].precio,
+            stock_min: data.stock_min !== undefined ? Number(data.stock_min) : MOCK_PRODUCT_DETAIL[id].stock_min,
+            id_estado: data.id_estado !== undefined ? Number(data.id_estado) : MOCK_PRODUCT_DETAIL[id].id_estado,
+            estado: (data.id_estado !== undefined ? Number(data.id_estado) : MOCK_PRODUCT_DETAIL[id].id_estado) === 1 ? 'ACTIVO' : 'INACTIVO',
+            descripcion: data.descripcion !== undefined ? data.descripcion : MOCK_PRODUCT_DETAIL[id].descripcion,
+            id_marca: data.id_marca ?? MOCK_PRODUCT_DETAIL[id].id_marca,
+            id_subcategoria: data.id_subcategoria ?? MOCK_PRODUCT_DETAIL[id].id_subcategoria,
+            id_moneda: data.id_moneda ?? MOCK_PRODUCT_DETAIL[id].id_moneda,
+          };
+        }
+
         const checkStatus = new CheckStatus();
         checkStatus.status = API_RESPONSE_STATUS.Ok;
         resolve(checkStatus);
