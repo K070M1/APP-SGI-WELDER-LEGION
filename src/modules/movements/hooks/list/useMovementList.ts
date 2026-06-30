@@ -1,4 +1,5 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import type { MovementListItemDTO } from '@/dtos/movements/movement.dto';
 import { usePagination } from '@/shared/hooks/use-pagination';
 import type { MovementFilterValues } from '../../schema';
@@ -27,9 +28,11 @@ export function useMovementList(filters: MovementFilterValues) {
     }
   }, [filters.category]);
 
-  useEffect(() => {
-    fetchMovements();
-  }, [fetchMovements]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchMovements();
+    }, [fetchMovements])
+  );
 
   const filteredMovements = useMemo(() => {
     const { searchQuery, motive } = filters;

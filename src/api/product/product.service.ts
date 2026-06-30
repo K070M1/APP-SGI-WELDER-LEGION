@@ -5,6 +5,7 @@
  */
 
 import { api, endpoint as apiEndpoint } from '@/api/core';
+import { insforge } from '@/lib/insforge';
 import { ENDPOINTS } from '@/api/core/endpoints';
 import type { ProductListItem, ProductDetail } from '@/dtos/products/product.dto';
 import type { ProductCreateDto } from '@/dtos/products/product.create.dto';
@@ -21,9 +22,22 @@ export class ProductService {
    * Obtener lista de productos con filtros y paginación
    */
   async getProducts(filters: ProductFilters) {
-    return api.getList<ProductListItem>(ENDPOINTS.PRODUCTS, {
-      params: filters,
-    });
+    const { data, error } = await insforge.database
+      .from('producto')
+      .select('*');
+
+    if (error) {
+      console.error('Error fetching products:', error);
+      throw error;
+    }
+
+    return {
+      isOk: () => true,
+      isNoData: () => !data || data.length === 0,
+      getMessage: () => '',
+      data: data || [],
+      total: data ? data.length : 0,
+    } as any;
   }
 
   /**

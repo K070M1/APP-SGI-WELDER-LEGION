@@ -19,6 +19,7 @@ export class MovementService {
       .from('movimiento')
       .select(`
         id,
+        created_at,
         fechaRegistro,
         tipo,
         motivo,
@@ -39,7 +40,7 @@ export class MovementService {
           )
         )
       `)
-      .order('fechaRegistro', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (filters?.tipo && filters.tipo !== 'TODOS' as any) {
       query = query.eq('tipo', filters.tipo);
@@ -70,7 +71,7 @@ export class MovementService {
         tipo: row.tipo || 'AJUSTE',
         motivo: row.motivo || null,
         cliente: row.cliente || null,
-        fechaRegistro: row.fechaRegistro,
+        fechaRegistro: row.created_at || row.fechaRegistro,
         usuarioNombre: usuario.nombreUsuario || 'Usuario Desconocido',
         detalles
       } as MovementListItemDTO;
@@ -82,6 +83,7 @@ export class MovementService {
       .from('movimiento')
       .select(`
         id,
+        created_at,
         fechaRegistro,
         tipo,
         motivo,
@@ -111,6 +113,7 @@ export class MovementService {
     }
 
     const row = data;
+    console.log('--- GET MOVEMENT RAW DATA ---', JSON.stringify(row, null, 2));
     const detalles = (row.detalle_movimiento || []).map((det: any) => ({
       id_detalle: det.id,
       id_producto: det.producto?.id || '',
@@ -127,7 +130,7 @@ export class MovementService {
       tipo: row.tipo || 'AJUSTE',
       motivo: row.motivo || null,
       cliente: row.cliente || null,
-      fechaRegistro: row.fechaRegistro,
+      fechaRegistro: row.created_at || row.fechaRegistro,
       usuarioNombre: row.usuario?.nombreUsuario || 'Usuario Desconocido',
       detalles
     } as MovementListItemDTO;
