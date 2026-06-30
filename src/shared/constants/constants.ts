@@ -7,42 +7,42 @@
 export const BRAND_OPTIONS = [
   {
     value: '84d8af01-e818-421c-ad38-a463f81d0b9f',
-    label: 'Jackson',
+    label: 'ESAB',
   },
   {
     value: '9ae21271-4e88-4003-89c1-3526e506c521',
-    label: 'Miller',
+    label: 'Werken',
   },
   {
     value: 'bc84076c-cb09-4b2c-8266-b3fcb91d5f0e',
-    label: 'Weller',
+    label: 'Energy',
   },
   {
     value: '2bfd9ff2-56a5-490e-b076-44fa6e898659',
-    label: 'Elite',
+    label: 'Indura / Oerlikon',
   },
 ];
 
 export const CATEGORY_OPTIONS = [
   {
     value: '06caff0c-b06e-4e49-9afb-04d3323b90a9',
-    label: 'Americanos',
+    label: 'Máquinas Inverter',
   },
   {
     value: 'bc1fb813-12a2-4a6f-8220-156e47f07756',
-    label: 'Huevito',
+    label: 'Máquinas multiproceso',
   },
   {
     value: '1b31630f-d107-4954-9bba-d4db8a0dfb4d',
-    label: 'Baberos',
+    label: 'Electrodos Celulósicos',
   },
   {
     value: '3347ab7a-b174-4ece-bd38-fd71b8f8a686',
-    label: 'Viseras',
+    label: 'Alambres',
   },
   {
     value: '8cb6c23c-777f-4e02-b3e8-1d8d368d6707',
-    label: 'Antideslizantes',
+    label: 'Fluxes',
   },
 ];
 
