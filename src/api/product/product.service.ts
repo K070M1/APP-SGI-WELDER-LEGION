@@ -9,6 +9,10 @@ import type {
   ProductDetail,
 } from '@/dtos/products/product.dto';
 
+import { api, endpoint as apiEndpoint } from '@/api/core';
+import { insforge } from '@/lib/insforge';
+import { ENDPOINTS } from '@/api/core/endpoints';
+import type { ProductListItem, ProductDetail } from '@/dtos/products/product.dto';
 import type { ProductCreateDto } from '@/dtos/products/product.create.dto';
 import type { ProductUpdateDto } from '@/dtos/products/product.update.dto';
 import type { ProductFilters } from '@/dtos/products/product.filters.dto';
