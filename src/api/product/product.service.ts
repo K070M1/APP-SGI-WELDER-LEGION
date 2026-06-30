@@ -328,105 +328,55 @@ export class ProductService {
   }
 
   /**
-   * Actualizar producto existente
+   * Actualizar stock de un producto
    */
-  async updateProduct(
-    id: string,
-    payload: ProductUpdateDto
-  ) {
+  async updateStock(id: string, stock: number) {
     try {
-      const productToUpdate: Record<string, unknown> = {
-        updated_at: new Date().toISOString(),
-      };
-
-      if (payload.nombre !== undefined) {
-        productToUpdate.nombre = payload.nombre.trim();
-      }
-
-      if (payload.codigo !== undefined) {
-        productToUpdate.codigo = payload.codigo.trim();
-      }
-
-      if (payload.precio !== undefined) {
-        productToUpdate.precio = Number(
-          payload.precio
-        );
-      }
-
-      if (payload.stock_min !== undefined) {
-        productToUpdate.stockMin = Number(
-          payload.stock_min
-        );
-      }
-
-      if (payload.descripcion !== undefined) {
-        productToUpdate.descripcion =
-          payload.descripcion?.trim() || null;
-      }
-
-      if (payload.id_marca !== undefined) {
-        productToUpdate.id_marca =
-          payload.id_marca;
-      }
-
-      if (payload.id_subcategoria !== undefined) {
-        productToUpdate.id_subcategoria =
-          payload.id_subcategoria;
-      }
-
-      if (payload.id_moneda !== undefined) {
-        productToUpdate.id_moneda =
-          payload.id_moneda;
-      }
-
-      /*
-      * No enviamos id_estado porque esa columna
-      * no existe en la tabla producto.
-      */
+      const nuevoStock = Math.max(0, Number(stock));
 
       const { data, error } = await insforge.database
         .from('producto')
-        .update(productToUpdate)
+        .update({
+          stock: nuevoStock,
+          updated_at: new Date().toISOString(),
+        })
         .eq('id', id)
         .select()
         .single();
 
       if (error || !data) {
         console.error(
-          'Error actualizando producto:',
+          'Error actualizando stock:',
           error
         );
 
         return {
           isOk: () => false,
-          isNoData: () => false,
           getMessage: () =>
             error?.message ||
-            'No fue posible actualizar el producto.',
-          data: null as unknown as ProductDetail,
+            'No fue posible actualizar el stock.',
+          data: null,
         };
       }
 
       return {
         isOk: () => true,
-        isNoData: () => false,
         getMessage: () =>
-          'Producto actualizado correctamente.',
+          'Stock actualizado correctamente.',
         data: this.mapProduct(data),
       };
     } catch (error: any) {
       console.error(
-        'Error inesperado actualizando producto:',
+        'Error inesperado actualizando stock:',
         error
       );
 
       return {
         isOk: () => false,
-        isNoData: () => false,
         getMessage: () =>
           error?.message ||
-          'Ocurrió un error al actualizar el producto.',
-        data: null as unknown as ProductDetail,
+          'Ocurrió un error al actualizar el stock.',
+        data: null,
       };
     }
   }

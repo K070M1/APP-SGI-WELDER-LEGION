@@ -52,6 +52,7 @@ import type { ProductFilterFormValues } from '../schema';
 import type {
   ProductStockFilter,
 } from '@/dtos/products/product.filters.dto';
+import { productService } from '@/api/product/product.service';
 
 interface FilterOption {
   value: string;
@@ -139,33 +140,88 @@ export function ProductListScreen() {
     pagination.pageSize,
   ]);
 
-  const handleIncrementStock = (
+  const handleIncrementStock = async (
     idProducto: string
   ) => {
+    const product = products.find(
+      (item) =>
+        item.id_producto === idProducto
+    );
+
+    if (!product) return;
+
+    const nuevoStock = product.stock + 1;
+
+    const response =
+      await productService.updateStock(
+        idProducto,
+        nuevoStock
+      );
+
+    if (!response.isOk()) {
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        text: response.getMessage(),
+      });
+
+      return;
+    }
+
     setProducts((previousProducts) =>
-      previousProducts.map((product) =>
-        product.id_producto === idProducto
+      previousProducts.map((item) =>
+        item.id_producto === idProducto
           ? {
-              ...product,
-              stock: product.stock + 1,
+              ...item,
+              stock: nuevoStock,
+              fecha_edicion:
+                new Date().toISOString(),
             }
-          : product
+          : item
       )
     );
   };
 
-  const handleDecrementStock = (
+  const handleDecrementStock = async (
     idProducto: string
   ) => {
+    const product = products.find(
+      (item) =>
+        item.id_producto === idProducto
+    );
+
+    if (!product || product.stock <= 0) {
+      return;
+    }
+
+    const nuevoStock = product.stock - 1;
+
+    const response =
+      await productService.updateStock(
+        idProducto,
+        nuevoStock
+      );
+
+    if (!response.isOk()) {
+      showAlert({
+        icon: 'error',
+        title: 'Error',
+        text: response.getMessage(),
+      });
+
+      return;
+    }
+
     setProducts((previousProducts) =>
-      previousProducts.map((product) =>
-        product.id_producto === idProducto &&
-        product.stock > 0
+      previousProducts.map((item) =>
+        item.id_producto === idProducto
           ? {
-              ...product,
-              stock: product.stock - 1,
+              ...item,
+              stock: nuevoStock,
+              fecha_edicion:
+                new Date().toISOString(),
             }
-          : product
+          : item
       )
     );
   };
@@ -270,13 +326,26 @@ export function ProductListScreen() {
           color: 'red',
 
           onClick: async () => {
-            setProducts(
-              (previousProducts) =>
-                previousProducts.filter(
-                  (item) =>
-                    item.id_producto !==
-                    idProducto
-                )
+            const response =
+              await productService.deleteProduct(
+                idProducto
+              );
+
+            if (!response.isOk()) {
+              showAlert({
+                icon: 'error',
+                title: 'No se pudo eliminar',
+                text: response.getMessage(),
+              });
+
+              return false;
+            }
+
+            setProducts((previousProducts) =>
+              previousProducts.filter(
+                (item) =>
+                  item.id_producto !== idProducto
+              )
             );
 
             showAlert({
@@ -285,7 +354,6 @@ export function ProductListScreen() {
               text:
                 `${product.nombre} ha sido ` +
                 'eliminado correctamente.',
-
               actions: [
                 {
                   name: 'ACEPTAR',
