@@ -45,9 +45,9 @@ export class ProductService {
       id_moneda: row.id_moneda ?? '',
       simbolo_moneda: row.moneda?.simbolo ?? 'S/',
 
-      // La tabla producto no tiene estado actualmente.
-      id_estado: 1,
-      estado: 'ACTIVO',
+      //estado
+      id_estado: row.activo ? 1 : 0,
+      estado: row.activo ? 'ACTIVO' : 'INACTIVO',
 
       fecha_creacion: row.created_at,
       fecha_edicion: row.updated_at,
@@ -66,28 +66,33 @@ export class ProductService {
         throw error;
       }
 
-      let products: ProductListItem[] = (data ?? []).map((row: any) => ({
-        id: row.id,
-        id_producto: row.id,
-        nombre: row.nombre ?? '',
-        codigo: row.codigo ?? '',
-        precio: Number(row.precio ?? 0),
-        stock: Number(row.stock ?? 0),
-        stock_min: Number(row.stockMin ?? 0),
+      let products: ProductListItem[] = (data ?? []).map(
+        (row: any) => {
+          // Mientras la columna no exista, se considera activo.
+          const isActive = row.activo ?? true;
 
-        descripcion: row.descripcion ?? null,
-        id_marca: row.id_marca ?? '',
-        id_subcategoria: row.id_subcategoria ?? '',
-        id_moneda: row.id_moneda ?? '',
+          return {
+            id: row.id,
+            id_producto: row.id,
+            nombre: row.nombre ?? '',
+            codigo: row.codigo ?? '',
+            precio: Number(row.precio ?? 0),
+            stock: Number(row.stock ?? 0),
+            stock_min: Number(row.stockMin ?? 0),
 
-        // La tabla actual no tiene estado.
-        // Temporalmente todos se consideran activos.
-        id_estado: 1,
-        estado: 'ACTIVO',
+            descripcion: row.descripcion ?? null,
+            id_marca: row.id_marca ?? '',
+            id_subcategoria: row.id_subcategoria ?? '',
+            id_moneda: row.id_moneda ?? '',
 
-        fecha_creacion: row.created_at,
-        fecha_edicion: row.updated_at,
-      }));
+            id_estado: isActive ? 1 : 0,
+            estado: isActive ? 'ACTIVO' : 'INACTIVO',
+
+            fecha_creacion: row.created_at,
+            fecha_edicion: row.updated_at,
+          };
+        }
+      );
 
       const texto = filters.buscar?.trim().toLowerCase();
 
@@ -104,13 +109,29 @@ export class ProductService {
         filters.id_estado !== '' &&
         filters.id_estado !== 'all'
       ) {
-        const estadoBuscado = String(filters.id_estado).toUpperCase();
+        const estadoBuscado = String(
+          filters.id_estado
+        ).toLowerCase();
 
-        products = products.filter(
-          (product) =>
-            String(product.id_estado) === estadoBuscado ||
-            product.estado.toUpperCase() === estadoBuscado
-        );
+        if (
+          estadoBuscado === 'active' ||
+          estadoBuscado === 'activo' ||
+          estadoBuscado === '1'
+        ) {
+          products = products.filter(
+            (product) => product.id_estado === 1
+          );
+        }
+
+        if (
+          estadoBuscado === 'inactive' ||
+          estadoBuscado === 'inactivo' ||
+          estadoBuscado === '0'
+        ) {
+          products = products.filter(
+            (product) => product.id_estado === 0
+          );
+        }
       }
       // Filtrar por subcategoría.
       if (
