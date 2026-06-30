@@ -3,6 +3,9 @@ export const ROUTES = {
     LOGIN: 'Auth_Login',
     FORGOT_PASSWORD: 'Auth_ForgotPassword',
   },
+  DASHBOARD: {
+    LIST: 'Dashboard_List',
+  },
   MAIN: {
     TABS: 'Main_Tabs',
   },

@@ -11,6 +11,7 @@ import type { MovementUpdateDto } from '@/dtos/movements/movement.update.dto';
 import type { MovementFilters } from '@/dtos/movements/movement.filters.dto';
 import { CheckStatus } from '@/dtos/core/checkStatus.dto';
 import { insforge } from '@/lib/insforge';
+import { useAuthStore } from '@/api/auth/auth.store';
 
 export class MovementService {
   async getMovements(filters?: MovementFilters): Promise<MovementListItemDTO[]> {
@@ -18,21 +19,28 @@ export class MovementService {
       .from('movimiento')
       .select(`
         id,
+        created_at,
         fechaRegistro,
         tipo,
-        observaciones,
+        motivo,
+        cliente,
         usuario (
           nombreUsuario
         ),
         detalle_movimiento (
+          id,
           cantidad,
+          stockInicial,
+          stockFinal,
           producto (
+            id,
             nombre,
-            codigo
+            codigo,
+            precio
           )
         )
       `)
-      .order('fechaRegistro', { ascending: false });
+      .order('created_at', { ascending: false });
 
     if (filters?.tipo && filters.tipo !== 'TODOS' as any) {
       query = query.eq('tipo', filters.tipo);
@@ -46,30 +54,141 @@ export class MovementService {
     }
 
     return (data || []).map((row: any) => {
-      const detalle = row.detalle_movimiento?.[0] || {};
-      const producto = detalle.producto || {};
+      const detalles = (row.detalle_movimiento || []).map((det: any) => ({
+        id_detalle: det.id,
+        id_producto: det.producto?.id || '',
+        nombre_producto: det.producto?.nombre || 'Sin producto',
+        codigo_producto: det.producto?.codigo || 'N/A',
+        cantidad: det.cantidad,
+        stock_inicial: det.stockInicial,
+        stock_final: det.stockFinal,
+        precio_unitario: det.producto?.precio || 0
+      }));
       const usuario = row.usuario || {};
 
       return {
         id: row.id,
         tipo: row.tipo || 'AJUSTE',
-        observaciones: row.observaciones || 'N/A',
-        fechaRegistro: row.fechaRegistro,
-        productoNombre: producto.nombre || 'Sin producto',
-        productoCodigo: producto.codigo || 'N/A',
-        cantidad: detalle.cantidad || 0,
-        usuarioNombre: usuario.nombreUsuario || 'admin',
+        motivo: row.motivo || null,
+        cliente: row.cliente || null,
+        fechaRegistro: row.created_at || row.fechaRegistro,
+        usuarioNombre: usuario.nombreUsuario || 'Usuario Desconocido',
+        detalles
       } as MovementListItemDTO;
     });
   }
 
-  async getMovementById(id: string) {
-    const url = apiEndpoint(ENDPOINTS.MOVEMENTS_BY_ID, { id });
-    return api.getOne<MovementListItem>(url);
+  async getMovementById(id: string): Promise<MovementListItemDTO> {
+    const { data, error } = await insforge.database
+      .from('movimiento')
+      .select(`
+        id,
+        created_at,
+        fechaRegistro,
+        tipo,
+        motivo,
+        cliente,
+        usuario (
+          nombreUsuario
+        ),
+        detalle_movimiento (
+          id,
+          cantidad,
+          stockInicial,
+          stockFinal,
+          producto (
+            id,
+            nombre,
+            codigo,
+            precio
+          )
+        )
+      `)
+      .eq('id', id)
+      .single();
+
+    if (error) {
+      console.error('Error fetching movement by id:', error);
+      throw error;
+    }
+
+    const row = data;
+    console.log('--- GET MOVEMENT RAW DATA ---', JSON.stringify(row, null, 2));
+    const detalles = (row.detalle_movimiento || []).map((det: any) => ({
+      id_detalle: det.id,
+      id_producto: det.producto?.id || '',
+      nombre_producto: det.producto?.nombre || 'Sin producto',
+      codigo_producto: det.producto?.codigo || 'N/A',
+      cantidad: det.cantidad,
+      stock_inicial: det.stockInicial,
+      stock_final: det.stockFinal,
+      precio_unitario: det.producto?.precio || 0
+    }));
+    
+    return {
+      id: row.id,
+      tipo: row.tipo || 'AJUSTE',
+      motivo: row.motivo || null,
+      cliente: row.cliente || null,
+      fechaRegistro: row.created_at || row.fechaRegistro,
+      usuarioNombre: row.usuario?.nombreUsuario || 'Usuario Desconocido',
+      detalles
+    } as MovementListItemDTO;
   }
 
   async createMovement(payload: MovementCreateDto) {
-    return api.postAndGetOne<MovementListItem>(ENDPOINTS.MOVEMENTS, payload);
+    try {
+      const userId = useAuthStore.getState().user?.id;
+      
+      if (!userId) {
+        throw new Error("No hay usuario autenticado.");
+      }
+
+      // 1. Crear el registro maestro de movimiento
+      const { data: movData, error: movError } = await insforge.database
+        .from('movimiento')
+        .insert({
+          tipo: payload.tipo,
+          motivo: payload.motivo,
+          cliente: payload.cliente,
+          id_usuario: userId
+        })
+        .select()
+        .single();
+
+      if (movError) {
+        console.error('Error insertando movimiento:', movError);
+        throw movError;
+      }
+
+      // 2. Crear los detalles (productos) asociados al movimiento
+      const detallesToInsert = payload.detalles.map(d => ({
+        id_movimiento: movData.id,
+        id_producto: d.id_producto,
+        cantidad: d.cantidad,
+        stockInicial: d.stockInicial,
+        stockFinal: d.stockFinal,
+        observaciones: d.observaciones
+      }));
+
+      const { error: detError } = await insforge.database
+        .from('detalle_movimiento')
+        .insert(detallesToInsert);
+
+      if (detError) {
+        console.error('Error insertando detalles:', detError);
+        throw detError;
+      }
+
+      return {
+        isOk: () => true,
+        getMessage: () => 'Movimiento creado exitosamente',
+        data: movData as MovementListItem
+      };
+    } catch (error: any) {
+      console.error('Error en createMovement:', error);
+      throw error;
+    }
   }
 
   async updateMovement(id: string, payload: MovementUpdateDto): Promise<CheckStatus> {

@@ -5,24 +5,22 @@ export type MovementType = 'ENTRADA' | 'SALIDA' | 'AJUSTE';
 export interface MovementListItemDTO {
   id: string;
   tipo: MovementType;
-  observaciones: string | null;
+  motivo: string | null;
+  cliente: string | null;
   fechaRegistro: string;
-  // Joins según diagrama
-  productoNombre: string;
-  productoCodigo: string;
-  cantidad: number;
   usuarioNombre: string;
+  detalles: MovementDetailItem[];
 }
 
 export type MovementDetailItem = {
-  id_detalle: string;
+  id_detalle?: string;
   id_producto: string;
   nombre_producto: string;
   codigo_producto: string;
   cantidad: number;
-  stock_inicial: number;
-  stock_final: number;
-  observaciones: string | null;
+  stock_inicial?: number;
+  stock_final?: number;
+  precio_unitario?: number;
 };
 
 // Keep existing just in case other parts of the app use them, but we will focus on MovementListItemDTO

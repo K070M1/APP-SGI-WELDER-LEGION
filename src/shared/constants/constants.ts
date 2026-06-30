@@ -5,20 +5,56 @@
 
 // OPCIONES DE PRODUCTOS
 export const BRAND_OPTIONS = [
-  { value: 'marca-001', label: 'Lincoln Electric' },
-  { value: 'marca-002', label: 'ESAB' },
-  { value: 'marca-003', label: 'Miller' },
+  {
+    value: '84d8af01-e818-421c-ad38-a463f81d0b9f',
+    label: 'ESAB',
+  },
+  {
+    value: '9ae21271-4e88-4003-89c1-3526e506c521',
+    label: 'Werken',
+  },
+  {
+    value: 'bc84076c-cb09-4b2c-8266-b3fcb91d5f0e',
+    label: 'Energy',
+  },
+  {
+    value: '2bfd9ff2-56a5-490e-b076-44fa6e898659',
+    label: 'Indura / Oerlikon',
+  },
 ];
 
 export const CATEGORY_OPTIONS = [
-  { value: 'subcat-001', label: 'Electrodos' },
-  { value: 'subcat-002', label: 'Máquinas' },
-  { value: 'subcat-003', label: 'Consumibles' },
+  {
+    value: '06caff0c-b06e-4e49-9afb-04d3323b90a9',
+    label: 'Máquinas Inverter',
+  },
+  {
+    value: 'bc1fb813-12a2-4a6f-8220-156e47f07756',
+    label: 'Máquinas multiproceso',
+  },
+  {
+    value: '1b31630f-d107-4954-9bba-d4db8a0dfb4d',
+    label: 'Electrodos Celulósicos',
+  },
+  {
+    value: '3347ab7a-b174-4ece-bd38-fd71b8f8a686',
+    label: 'Alambres',
+  },
+  {
+    value: '8cb6c23c-777f-4e02-b3e8-1d8d368d6707',
+    label: 'Fluxes',
+  },
 ];
 
 export const CURRENCY_OPTIONS = [
-  { value: 'sol', label: 'Soles (S/)' },
-  { value: 'usd', label: 'Dólares (US$)' },
+  {
+    value: 'f6a68f3d-7187-44e5-acb3-dbebb7d02f40',
+    label: 'Soles (S/)',
+  },
+  {
+    value: '2116c651-8e31-4392-bd2e-2ff35acbb962',
+    label: 'Dólares ($)',
+  },
 ];
 
 // OPCIONES DE USUARIOS

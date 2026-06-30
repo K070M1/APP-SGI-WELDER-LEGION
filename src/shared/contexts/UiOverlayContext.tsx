@@ -3,8 +3,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter } from '@/shared/components/ui/alert-dialog';
 import { Button } from '@/shared/components/ui/button';
 import { Text } from '@/shared/components/ui/text';
-import { View } from 'react-native';
-import { AlertCircleIcon, CheckCircle2, Loader, QrCode } from 'lucide-react-native';
+import { View, ScrollView } from 'react-native';
+import { AlertCircleIcon, CheckCircle2, Loader } from 'lucide-react-native';
 import { Icon } from '@/shared/components/ui/icon';
 import QRCode from 'react-native-qrcode-svg';
 
@@ -22,6 +22,11 @@ export interface AlertConfig {
   actions?: AlertAction[];
   isQR?: boolean;     // Si es true, muestra modal de QR
   qrCode?: string;    // Código QR a mostrar
+  qrValue?: string;
+  qrDetails?: Array<{
+    label: string;
+    value: string;
+  }>;
 }
 
 export interface LoadingConfig {
@@ -230,13 +235,21 @@ export function UiOverlayProvider({ children }: { children: ReactNode }) {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* QR Modal - Dialog con diseño visual */}
-      <Dialog open={alertOpen && alertConfig.isQR} onOpenChange={setAlertOpen}>
-        <DialogContent className="w-[90%] bg-white rounded-[32px] p-6" showClose={true}>
+      {/* QR Modal - información completa y QR al final */}
+      <Dialog
+        open={alertOpen && alertConfig.isQR}
+        onOpenChange={setAlertOpen}
+      >
+        <DialogContent
+          className="w-[90%] bg-white rounded-[32px] p-6"
+          style={{ maxHeight: 620 }}
+          showClose={true}
+        >
           <DialogHeader>
             <DialogTitle className="text-center text-2xl font-extrabold text-slate-900 mt-2">
               {alertConfig.title}
             </DialogTitle>
+
             {alertConfig.text && (
               <DialogDescription className="text-center text-slate-500 text-sm mt-1 px-4">
                 {alertConfig.text}
@@ -260,33 +273,60 @@ export function UiOverlayProvider({ children }: { children: ReactNode }) {
               <Text className="text-slate-600 font-semibold mt-4 tracking-wider text-sm uppercase">
                 {alertConfig.qrCode}
               </Text>
-            </View>
-          </View>
 
-          {alertConfig.actions && alertConfig.actions.length > 0 && (
-            <View className="mt-4 flex-row justify-center gap-4">
-              {alertConfig.actions.map((action, idx) => {
-                const colorConfig = getActionButtonColor(action.color);
-                return (
-                  <Button
-                    key={idx}
-                    className="flex rounded-xl flex-row items-center justify-center px-4 py-2"
-                    style={{
-                      backgroundColor: colorConfig.bg,
-                      borderWidth: colorConfig.hasBorder ? 1 : 0,
-                      borderColor: colorConfig.border,
-                    }}
-                    onPress={() => handleAlertAction(action)}
-                    disabled={isProcessing}
-                  >
-                    <Text style={{ color: colorConfig.text }} className="font-bold">
-                      {action.name}
-                    </Text>
-                  </Button>
-                );
-              })}
+              <View className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                <QRCode
+                  value={
+                    alertConfig.qrValue ||
+                    alertConfig.qrCode ||
+                    'SIN-CODIGO'
+                  }
+                  size={190}
+                  color="#0F172A"
+                  backgroundColor="#FFFFFF"
+                />
+              </View>
+
+              <Text className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Código: {alertConfig.qrCode || 'No registrado'}
+              </Text>
             </View>
-          )}
+          </ScrollView>
+
+          {alertConfig.actions &&
+            alertConfig.actions.length > 0 && (
+              <View className="mt-4 flex-row justify-center gap-4">
+                {alertConfig.actions.map((action, idx) => {
+                  const colorConfig =
+                    getActionButtonColor(action.color);
+
+                  return (
+                    <Button
+                      key={idx}
+                      className="flex rounded-xl flex-row items-center justify-center px-4 py-2"
+                      style={{
+                        backgroundColor: colorConfig.bg,
+                        borderWidth: colorConfig.hasBorder
+                          ? 1
+                          : 0,
+                        borderColor: colorConfig.border,
+                      }}
+                      onPress={() =>
+                        handleAlertAction(action)
+                      }
+                      disabled={isProcessing}
+                    >
+                      <Text
+                        style={{ color: colorConfig.text }}
+                        className="font-bold"
+                      >
+                        {action.name}
+                      </Text>
+                    </Button>
+                  );
+                })}
+              </View>
+            )}
         </DialogContent>
       </Dialog>
     </UiOverlayContext.Provider>
