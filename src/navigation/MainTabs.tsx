@@ -1,5 +1,5 @@
 import React from 'react';
-import { View } from 'react-native';
+import { TouchableOpacity, View } from 'react-native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Package, ArrowLeftRight, Users, UserCircleIcon, LayoutDashboard } from 'lucide-react-native';
@@ -8,6 +8,7 @@ import { ROUTES } from './routes';
 import { ProductListScreen } from '@/modules/products/screens/ListScreen';
 import { MovementListScreen } from '@/modules/movements/screens/ListScreen';
 import { UserListScreen } from '@/modules/users/screens/ListScreen';
+import { DashboardScreen } from '@/modules/dashboard/screens/DashboardScreen';
 
 import { UserMenu } from '@/shared/components/composed/user-menu';
 import { Icon } from '@/shared/components/ui/icon';
@@ -75,21 +76,26 @@ export function MainTabs() {
         )
       }
 
+      {/* 3. DASHBOARD (CENTRAL) */}
       <Tab.Screen
         name={ROUTES.DASHBOARD.LIST}
-        component={View}
+        component={DashboardScreen}
         options={{
           tabBarButton: () => (
             <View className="flex-1 items-center justify-center">
-              <View className='-mt-8 bg-[#748FFC] rounded-full p-3.5 elevation-md'>
+              <TouchableOpacity
+                activeOpacity={0.9}
+                onPress={() => navigation.navigate(ROUTES.DASHBOARD.LIST as never)}
+                className="-mt-8 bg-[#748FFC] rounded-full p-3.5 elevation-md shadow-lg shadow-blue-500/30"
+              >
                 <LayoutDashboard color="#ffffff" size={24} />
-              </View>
+              </TouchableOpacity>
             </View>
           )
         }}
       />
 
-      {/* 3. USUARIOS */}
+      {/* 4. USUARIOS */}
       {
         // Solo ADMIN puede ver la pestaña de Usuarios
         (user?.rol === "ADMIN") && (
@@ -104,7 +110,7 @@ export function MainTabs() {
         )
       }
 
-      {/* 4. CUENTA (Con Dropdown Menu) */}
+      {/* 5. CUENTA (Con Dropdown Menu) */}
       <Tab.Screen
         name="AccountMenu"
         component={View}
