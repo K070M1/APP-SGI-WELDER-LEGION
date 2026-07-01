@@ -1,4 +1,5 @@
 import * as z from 'zod';
+import { isSafeString } from '@/shared/utils/zod/isSafeString';
 
 export const movementItemSchema = z.object({
   id_producto: z.string(),
@@ -12,7 +13,7 @@ export const movementItemSchema = z.object({
 export const movementFormSchema = z.object({
   categoria: z.enum(['ENTRADA', 'SALIDA']),
   motivo: z.string().min(1, 'El motivo es requerido'),
-  entidad_relacionada: z.string().min(2, 'El nombre del cliente/proveedor es requerido'),
+  entidad_relacionada: z.string().min(2, 'El nombre del cliente/proveedor es requerido').refine(isSafeString, 'Entrada no permitida por seguridad'),
   items: z.array(movementItemSchema).min(1, 'Debes agregar al menos un producto'),
 });
 

@@ -12,6 +12,7 @@ import type { MovementFilters } from '@/dtos/movements/movement.filters.dto';
 import { CheckStatus } from '@/dtos/core/checkStatus.dto';
 import { insforge } from '@/lib/insforge';
 import { useAuthStore } from '@/api/auth/auth.store';
+import { productService } from '@/api/product/product.service';
 
 export class MovementService {
   async getMovements(filters?: MovementFilters): Promise<MovementListItemDTO[]> {
@@ -178,6 +179,11 @@ export class MovementService {
       if (detError) {
         console.error('Error insertando detalles:', detError);
         throw detError;
+      }
+
+      // 3. Actualizar el stock de los productos afectados
+      for (const detalle of payload.detalles) {
+        await productService.updateStock(detalle.id_producto, detalle.stockFinal);
       }
 
       return {
