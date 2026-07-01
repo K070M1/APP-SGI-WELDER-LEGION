@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, TextInput, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation, useRoute, RouteProp } from '@react-navigation/native';
@@ -13,8 +13,9 @@ import { useProductEntityForm } from '@/modules/products/hooks/form/useProductEn
 import { useProductStateSelect } from '@/modules/products/hooks/useProductStateSelect';
 import { useProductForm } from '@/modules/products/hooks/form/useProductForm';
 import { useUiOverlay } from '@/shared/contexts/UiOverlayContext';
+import { productService } from '@/api/product/product.service';
 
-import { BRAND_OPTIONS, CATEGORY_OPTIONS, CURRENCY_OPTIONS } from '@/shared/constants/constants';
+import { CURRENCY_OPTIONS } from '@/shared/constants/constants';
 
 type ProductFormRoute = {
   product?: Record<string, unknown>;
@@ -40,10 +41,29 @@ export function ProductFormScreen() {
 
   const { load, save, isLoading, isSubmitting } = useProductForm();
 
-  // Cargar datos del producto si estamos editando
+  const [dbBrands, setDbBrands] = useState<{ value: string, label: string }[]>([]);
+  const [dbCategories, setDbCategories] = useState<{ value: string, label: string }[]>([]);
+  const [isLoadingOptions, setIsLoadingOptions] = useState(true);
+
+  // Cargar datos del producto si estamos editando y opciones de marca/categoria
   useEffect(() => {
-    if (isEditing && productId) {
-      const fetchProductDetails = async () => {
+    const fetchData = async () => {
+      // 1. Cargar opciones de la DB
+      const [brandsRes, categoriesRes] = await Promise.all([
+        productService.getBrands(),
+        productService.getSubcategories()
+      ]);
+
+      if (brandsRes.isOk()) {
+        setDbBrands(brandsRes.data.map((b: any) => ({ value: b.id, label: b.nombre })));
+      }
+      if (categoriesRes.isOk()) {
+        setDbCategories(categoriesRes.data.map((c: any) => ({ value: c.id, label: c.nombre })));
+      }
+      setIsLoadingOptions(false);
+
+      // 2. Cargar producto si está editando
+      if (isEditing && productId) {
         const data = await load(productId);
         if (data) {
           reset({
@@ -58,9 +78,10 @@ export function ProductFormScreen() {
             id_estado: data.id_estado !== undefined ? data.id_estado : 1,
           });
         }
-      };
-      fetchProductDetails();
-    }
+      }
+    };
+
+    fetchData();
   }, [productId, isEditing, load, reset]);
 
   const onSubmit = (data: any) => {
@@ -137,10 +158,10 @@ export function ProductFormScreen() {
           </Text>
         </View>
 
-        {isLoading ? (
+        {isLoading || isLoadingOptions ? (
           <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color="#748FFC" />
-            <Text className="text-slate-500 font-medium mt-4">Cargando datos del producto...</Text>
+            <Text className="text-slate-500 font-medium mt-4">Cargando datos...</Text>
           </View>
         ) : (
           <ScrollView
@@ -197,7 +218,7 @@ export function ProductFormScreen() {
                   control={control}
                   name="id_marca"
                   render={({ field: { onChange, value } }) => {
-                    const selectedOption = BRAND_OPTIONS.find((opt) => opt.value === value);
+                    const selectedOption = dbBrands.find((opt) => opt.value === value);
                     return (
                       <Select
                         value={selectedOption ? { value, label: selectedOption.label } : undefined}
@@ -211,7 +232,7 @@ export function ProductFormScreen() {
                             <SelectLabel>
                               <Text className="font-bold text-[#333333]">Marca</Text>
                             </SelectLabel>
-                            {BRAND_OPTIONS.map((option) => (
+                            {dbBrands.map((option) => (
                               <SelectItem key={option.value} value={option.value} label={option.label}>
                                 <Text>{option.label}</Text>
                               </SelectItem>
@@ -226,12 +247,12 @@ export function ProductFormScreen() {
               </View>
 
               <View className="flex-1">
-                <Text className="text-xs font-bold text-[#333333] mb-2">SUBCATEGORÍA</Text>
+                <Text className="text-xs font-bold text-[#333333] mb-2">CATEGORÍA / SUBCATEGORÍA</Text>
                 <Controller
                   control={control}
                   name="id_subcategoria"
                   render={({ field: { onChange, value } }) => {
-                    const selectedOption = CATEGORY_OPTIONS.find((opt) => opt.value === value);
+                    const selectedOption = dbCategories.find((opt) => opt.value === value);
                     return (
                       <Select
                         value={selectedOption ? { value, label: selectedOption.label } : undefined}
@@ -243,9 +264,9 @@ export function ProductFormScreen() {
                         <SelectContent align="center" sideOffset={8} className="w-full rounded-xl border-[#E8E8E8]">
                           <SelectGroup>
                             <SelectLabel>
-                              <Text className="font-bold text-[#333333]">Subcategoría</Text>
+                              <Text className="font-bold text-[#333333]">Categoría / Subcategoría</Text>
                             </SelectLabel>
-                            {CATEGORY_OPTIONS.map((option) => (
+                            {dbCategories.map((option) => (
                               <SelectItem key={option.value} value={option.value} label={option.label}>
                                 <Text>{option.label}</Text>
                               </SelectItem>

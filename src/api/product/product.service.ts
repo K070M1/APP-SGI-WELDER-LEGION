@@ -255,6 +255,52 @@ export class ProductService {
   }
 
   /**
+   * Obtener marcas
+   */
+  async getBrands() {
+    try {
+      const { data, error } = await insforge.database
+        .from('marca')
+        .select('id, nombre')
+        .order('nombre', { ascending: true });
+
+      if (error) throw error;
+      return { isOk: () => true, data: data || [] };
+    } catch (error) {
+      console.error('Error obteniendo marcas:', error);
+      return { isOk: () => false, data: [] };
+    }
+  }
+
+  /**
+   * Obtener subcategorias
+   */
+  async getSubcategories() {
+    try {
+      const { data, error } = await insforge.database
+        .from('subcategoria')
+        .select('id, nombre, categoria(nombre)')
+        .order('nombre', { ascending: true });
+
+      if (error) throw error;
+
+      const formattedData = (data || []).map((sub: any) => {
+        const catNombre = sub.categoria && !Array.isArray(sub.categoria) ? sub.categoria.nombre :
+          (Array.isArray(sub.categoria) && sub.categoria[0] ? sub.categoria[0].nombre : null);
+        return {
+          id: sub.id,
+          nombre: catNombre ? `${catNombre} / ${sub.nombre}` : sub.nombre
+        };
+      });
+
+      return { isOk: () => true, data: formattedData };
+    } catch (error) {
+      console.error('Error obteniendo subcategorias:', error);
+      return { isOk: () => false, data: [] };
+    }
+  }
+
+  /**
    * Crear nuevo producto
    */
   async createProduct(payload: ProductCreateDto) {
@@ -265,7 +311,7 @@ export class ProductService {
         precio: Number(payload.precio),
 
         // El formulario no solicita stock inicial.
-        stock: 0,
+        stock: 1,
 
         // La columna real utiliza camelCase.
         stockMin: Number(payload.stock_min),
@@ -381,37 +427,16 @@ export class ProductService {
   /**
    * Eliminar producto
    */
-    async deleteProduct(id: string) {
-      try {
-        const { error } = await insforge.database
-          .from('producto')
-          .delete()
-          .eq('id', id);
+  async deleteProduct(id: string) {
+    try {
+      const { error } = await insforge.database
+        .from('producto')
+        .delete()
+        .eq('id', id);
 
-        if (error) {
-          console.error(
-            'Error eliminando producto:',
-            error
-          );
-
-          return {
-            isOk: () => false,
-            isNoData: () => false,
-            getMessage: () =>
-              error.message ||
-              'No fue posible eliminar el producto.',
-          };
-        }
-
-        return {
-          isOk: () => true,
-          isNoData: () => false,
-          getMessage: () =>
-            'Producto eliminado correctamente.',
-        };
-      } catch (error: any) {
+      if (error) {
         console.error(
-          'Error inesperado eliminando producto:',
+          'Error eliminando producto:',
           error
         );
 
@@ -419,12 +444,33 @@ export class ProductService {
           isOk: () => false,
           isNoData: () => false,
           getMessage: () =>
-            error?.message ||
-            'Ocurrió un error al eliminar el producto.',
+            error.message ||
+            'No fue posible eliminar el producto.',
         };
       }
+
+      return {
+        isOk: () => true,
+        isNoData: () => false,
+        getMessage: () =>
+          'Producto eliminado correctamente.',
+      };
+    } catch (error: any) {
+      console.error(
+        'Error inesperado eliminando producto:',
+        error
+      );
+
+      return {
+        isOk: () => false,
+        isNoData: () => false,
+        getMessage: () =>
+          error?.message ||
+          'Ocurrió un error al eliminar el producto.',
+      };
     }
   }
+}
 
 // ===== SINGLETON EXPORT =====
 export const productService = new ProductService();
