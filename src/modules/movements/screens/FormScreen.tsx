@@ -21,6 +21,7 @@ import type { MovementFormValues } from '../schema';
 export function MovementFormScreen() {
   const navigation = useNavigation();
   const { form, currentCategory, selectedItems, totalMonto, addProduct, removeProduct, updateQuantity } = useMovementForm();
+  const { errors } = form.formState;
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const availableMotives = MOVEMENT_MOTIVES[currentCategory] || MOVEMENT_MOTIVES['all'];
@@ -137,7 +138,7 @@ export function MovementFormScreen() {
                 name="entidad_relacionada"
                 render={({ field: { onChange, value } }) => (
                   <TextInput
-                    className="h-12 px-4 bg-white border border-[#E8E8E8] rounded-xl text-[#333333]"
+                    className={`h-12 px-4 bg-white border ${errors.entidad_relacionada ? 'border-red-500' : 'border-[#E8E8E8]'} rounded-xl text-[#333333]`}
                     placeholder="Nombre de la entidad..."
                     placeholderTextColor="#999999"
                     value={value}
@@ -145,6 +146,9 @@ export function MovementFormScreen() {
                   />
                 )}
               />
+              {errors.entidad_relacionada && (
+                <Text className="text-red-500 text-xs mt-1">{errors.entidad_relacionada.message}</Text>
+              )}
             </View>
 
             <View className="border-t border-[#E8E8E8] pt-4 mt-2 pb-2" />
@@ -169,6 +173,9 @@ export function MovementFormScreen() {
                     onUpdateQty={updateQuantity}
                   />
                 ))
+              )}
+              {errors.items && (
+                <Text className="text-red-500 text-xs mt-2">{errors.items.message}</Text>
               )}
             </View>
 
