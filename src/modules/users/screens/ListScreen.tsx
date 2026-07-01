@@ -46,7 +46,7 @@ export function UserListScreen() {
   return (
     <SafeAreaView className="flex-1 bg-[#F8FAFC]">
       {/* Cabecera, Título y Filtros - FIJOS */}
-      <View className="px-4 pt-4">
+      <View className="flex-1 px-4 pt-4">
 
         {/* Cabecera y Título */}
         <View className="flex-row justify-between items-center mb-6">
@@ -111,17 +111,17 @@ export function UserListScreen() {
           </View>
 
           <View className="flex-row gap-2 mt-1">
-            <Button 
-              variant="outline" 
-              className="flex-1 rounded-xl border-[#E8E8E8] h-10 flex-row items-center justify-center bg-white" 
+            <Button
+              variant="outline"
+              className="flex-1 rounded-xl border-[#E8E8E8] h-10 flex-row items-center justify-center bg-white"
               onPress={handleClearFilters}
               disabled={isLoading}
             >
               <Icon as={FilterIcon} className="size-4 text-[#333333] mr-2" />
               <Text className="text-[#333333] font-bold text-xs">Limpiar</Text>
             </Button>
-            <Button 
-              className="flex-1 rounded-xl h-10 flex-row items-center justify-center bg-[#748FFC]" 
+            <Button
+              className="flex-1 rounded-xl h-10 flex-row items-center justify-center bg-[#748FFC]"
               onPress={loadUsers}
               disabled={isLoading}
             >
@@ -139,7 +139,7 @@ export function UserListScreen() {
 
         {/* Grid de 2 Columnas - SCROLLABLE */}
         {isLoading ? (
-          <View className="flex-1 items-center justify-center py-20">
+          <View className="flex-1 items-center justify-center">
             <ActivityIndicator size="large" color="#748FFC" />
             <Text className="text-lg font-bold text-[#748FFC] mt-4 mb-2">Cargando usuarios...</Text>
             <Text className="text-sm text-[#999999]">Por favor espera</Text>
@@ -151,10 +151,16 @@ export function UserListScreen() {
             numColumns={2}
             columnWrapperClassName="justify-center"
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 16 }}
+            contentContainerStyle={{
+              paddingBottom:
+                Platform.OS === 'ios'
+                  ? 120
+                  : 100,
+              paddingHorizontal: 2,
+            }}
             scrollEnabled={true}
             ListEmptyComponent={
-              <View className="flex-1 items-center justify-center py-20">
+              <View className="flex-1 items-center justify-center">
                 <Icon as={Search} size={64} className="text-[#E8E8E8] mb-4" />
                 <Text className="text-lg font-bold text-[#999999] mb-2">No se encontraron usuarios</Text>
                 <Text className="text-sm text-[#CCCCCC] text-center px-8">

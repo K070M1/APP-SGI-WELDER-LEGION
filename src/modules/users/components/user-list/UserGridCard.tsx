@@ -20,7 +20,7 @@ export function UserGridCard({ user, onPress, onEdit, onDelete }: UserGridCardPr
   const isActive = user.estado === 1;
 
   return (
-    <View className="flex-1 bg-white p-4 rounded-3xl border border-[#E8E8E8] m-1 shadow-sm">
+    <View className="bg-white p-4 rounded-3xl border border-[#E8E8E8] m-1 shadow-sm">
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={onPress}

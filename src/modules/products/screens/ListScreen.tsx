@@ -254,7 +254,6 @@ export function ProductListScreen() {
       title: 'Información del producto',
       qrCode: product.codigo,
       qrValue: JSON.stringify(qrData),
-
       qrDetails: [
         {
           label: 'Nombre del producto',
@@ -582,111 +581,6 @@ export function ProductListScreen() {
                         </SelectItem>
                       )
                     )}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </View>
-          </View>
-
-          {/* Subcategoría y Marca */}
-          <View className="flex-row gap-2">
-
-            <View className="flex-1">
-              <Select
-                value={selectedCategory}
-                onValueChange={(option) => {
-                  const value = (
-                    option as FilterOption
-                  ).value;
-
-                  form.setValue(
-                    'id_categoria',
-                    value === 'all'
-                      ? undefined
-                      : value
-                  );
-                }}
-              >
-                <SelectTrigger className="h-10 rounded-xl border border-slate-200 bg-white">
-                  <SelectValue placeholder="Subcategoría" />
-                </SelectTrigger>
-
-                <SelectContent
-                  align="start"
-                  sideOffset={8}
-                  className="w-64 rounded-xl border-slate-100"
-                >
-                  <SelectGroup>
-                    <SelectLabel>
-                      <Text className="font-bold text-slate-900">
-                        Subcategoría
-                      </Text>
-                    </SelectLabel>
-
-                    {[
-                      {
-                        value: 'all',
-                        label: 'Todas',
-                      },
-                      ...CATEGORY_OPTIONS,
-                    ].map((option) => (
-                      <SelectItem
-                        key={option.value}
-                        value={option.value}
-                        label={option.label}
-                      >
-                        <Text>
-                          {option.label}
-                        </Text>
-                      </SelectItem>
-                    ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-            </View>
-
-            <View className="flex-1">
-              <Select
-                value={brandFilter}
-                onValueChange={(option) =>
-                  setBrandFilter(
-                    option as FilterOption
-                  )
-                }
-              >
-                <SelectTrigger className="h-10 rounded-xl border border-slate-200 bg-white">
-                  <SelectValue placeholder="Marca" />
-                </SelectTrigger>
-
-                <SelectContent
-                  align="end"
-                  sideOffset={8}
-                  className="w-64 rounded-xl border-slate-100"
-                >
-                  <SelectGroup>
-                    <SelectLabel>
-                      <Text className="font-bold text-slate-900">
-                        Marca
-                      </Text>
-                    </SelectLabel>
-
-                    {[
-                      {
-                        value: 'all',
-                        label: 'Todas',
-                      },
-                      ...BRAND_OPTIONS,
-                    ].map((option) => (
-                      <SelectItem
-                        key={option.value}
-                        value={option.value}
-                        label={option.label}
-                      >
-                        <Text>
-                          {option.label}
-                        </Text>
-                      </SelectItem>
-                    ))}
                   </SelectGroup>
                 </SelectContent>
               </Select>
