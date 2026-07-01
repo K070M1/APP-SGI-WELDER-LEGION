@@ -19,7 +19,7 @@ export function DashboardKPIs() {
     <View className="px-2 mb-6 mt-4">
       <View className="flex-row mb-4">
         <KPICard title="Total Productos" value={data.totalProducts} icon={Package} />
-        <KPICard title="Stock Crítico" value={data.lowStockProducts} bgColorClass="bg-[#FFF5F5]" textColorClass="text-[#FF8787]" icon={AlertTriangle} />
+        <KPICard title="Stock Crítico" value={data.lowStockProducts} bgColorClass="bg-[#E2E8F0]" textColorClass="text-[#1E293B]" icon={AlertTriangle} />
       </View>
       <View className="flex-row">
         <KPICard title="Movimientos Hoy" value={data.movementsToday} icon={ArrowLeftRight} />

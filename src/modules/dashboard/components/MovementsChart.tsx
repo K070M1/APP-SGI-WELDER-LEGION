@@ -18,16 +18,16 @@ export function MovementsChart() {
       isLoading={isLoading}
       onPressGoTo={() => navigation.navigate(ROUTES.MOVEMENTS.LIST as never)}
     >
-      <View className="h-40 flex-row items-end justify-between px-2">
+      <View className="h-40 flex-row items-end justify-around px-8">
         {data.map((item, index) => {
-          const heightPercent = Math.max((item.value / maxVal) * 100, 5);
+          const heightPercent = Math.max((item.value / maxVal) * 80, 5);
           const isLatest = index === data.length - 1;
 
           return (
-            <View key={item.label} className="items-center w-10">
-              <Text className="text-[10px] font-bold text-[#999999] mb-1">{item.value}</Text>
-              <View style={{ height: `${heightPercent}%` }} className={`w-6 rounded-t-lg ${isLatest ? 'bg-[#FF8787]' : 'bg-[#FFE5E5]'}`} />
-              <Text className={`text-xs mt-2 ${isLatest ? 'font-bold text-[#FF8787]' : 'text-[#999999]'}`}>{item.label}</Text>
+            <View key={`${item.label}-${index}`} className="items-center w-20">
+              <Text className="text-[12px] font-bold text-[#999999] mb-1">{item.value}</Text>
+              <View style={{ height: `${heightPercent}%` }} className={`w-12 rounded-t-xl ${isLatest ? 'bg-[#1E293B]' : 'bg-[#E2E8F0]'}`} />
+              <Text className={`text-[12px] mt-2 ${isLatest ? 'font-bold text-[#1E293B]' : 'text-[#64748B]'}`}>{item.label}</Text>
             </View>
           );
         })}
