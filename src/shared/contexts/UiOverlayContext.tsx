@@ -259,26 +259,11 @@ export function UiOverlayProvider({ children }: { children: ReactNode }) {
 
           <View className="items-center justify-center py-6">
             <View className="p-6 bg-white rounded-3xl border border-slate-200 items-center justify-center shadow-sm min-h-[220px] min-w-[220px]">
-              {alertConfig.qrCode ? (
-                <QRCode
-                  value={alertConfig.qrCode}
-                  size={160}
-                  color="#1A1A2E"
-                  backgroundColor="#FFFFFF"
-                  quietZone={8}
-                />
-              ) : (
-                <Icon as={QrCode} size={64} className="text-slate-300" />
-              )}
-              <Text className="text-slate-600 font-semibold mt-4 tracking-wider text-sm uppercase">
-                {alertConfig.qrCode}
-              </Text>
-
               <View className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
                 <QRCode
                   value={
-                    alertConfig.qrValue ||
-                    alertConfig.qrCode ||
+                    alertConfig?.qrValue ||
+                    alertConfig?.qrCode ||
                     'SIN-CODIGO'
                   }
                   size={190}
@@ -288,12 +273,12 @@ export function UiOverlayProvider({ children }: { children: ReactNode }) {
               </View>
 
               <Text className="mt-4 text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Código: {alertConfig.qrCode || 'No registrado'}
+                Código: {alertConfig?.qrCode || 'No registrado'}
               </Text>
             </View>
-          </ScrollView>
+          </View>
 
-          {alertConfig.actions &&
+          {alertConfig?.actions &&
             alertConfig.actions.length > 0 && (
               <View className="mt-4 flex-row justify-center gap-4">
                 {alertConfig.actions.map((action, idx) => {
