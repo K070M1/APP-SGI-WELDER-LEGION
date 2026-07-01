@@ -41,7 +41,7 @@ export function ProductSelector({ onSelect }: { onSelect: (product: MovementSele
   );
 
   return (
-    <View className="mb-4 relative z-50" style={{ zIndex: 50 }}>
+    <View className="mb-4">
       <TouchableOpacity 
         onPress={() => setOpen(!open)}
         className="w-full h-12 px-4 bg-white border border-[#E8E8E8] rounded-xl flex-row items-center gap-3"
@@ -51,7 +51,7 @@ export function ProductSelector({ onSelect }: { onSelect: (product: MovementSele
       </TouchableOpacity>
 
       {open && (
-        <View className="absolute top-[52px] left-0 w-[100%] bg-white border border-[#E8E8E8] px-4 py-3 rounded-3xl shadow-lg z-50" style={{ elevation: 10, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.1, shadowRadius: 10 }}>
+        <View className="mt-2 w-full bg-white border border-[#E8E8E8] px-4 py-3 rounded-3xl overflow-hidden">
           <View className="mb-3">
             <View className="flex-row items-center bg-white rounded-xl px-3 py-2 border border-[#E8E8E8]">
               <Icon as={Search} size={16} className="text-[#999999] mr-2" />
