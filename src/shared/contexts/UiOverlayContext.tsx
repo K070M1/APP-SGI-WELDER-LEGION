@@ -257,8 +257,8 @@ export function UiOverlayProvider({ children }: { children: ReactNode }) {
             )}
           </DialogHeader>
 
-          <View className="items-center justify-center py-6">
-            <View className="p-6 bg-white rounded-3xl border border-slate-200 items-center justify-center shadow-sm min-h-[220px] min-w-[220px]">
+          <View className="items-center justify-center">
+            <View className=" bg-white rounded-3xl border border-slate-200 items-center justify-center shadow-sm min-h-[220px] min-w-[220px]">
               <View className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
                 <QRCode
                   value={
