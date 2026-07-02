@@ -132,7 +132,7 @@ export class MovementService {
       motivo: row.motivo || null,
       cliente: row.cliente || null,
       fechaRegistro: row.created_at || row.fechaRegistro,
-      usuarioNombre: row.usuario?.nombreUsuario || 'Usuario Desconocido',
+      usuarioNombre: (row.usuario as any)?.nombreUsuario || 'Usuario Desconocido',
       detalles
     } as MovementListItemDTO;
   }

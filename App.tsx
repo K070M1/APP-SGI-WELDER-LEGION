@@ -1,8 +1,10 @@
 import "./global.css"
+import * as Linking from 'expo-linking';
 import { NavigationContainer } from '@react-navigation/native';
 import { StatusBar, useColorScheme } from "react-native";
 import { PortalHost } from '@rn-primitives/portal';
 import { ThemeProvider, DarkTheme, DefaultTheme } from "@react-navigation/native";
+import { ROUTES } from 'src/navigation/routes';
 
 // Stacks
 import { RootNavigator } from '@/navigation/RootNavigator';
@@ -16,9 +18,18 @@ export default function App() {
     ...isDarkMode ? DarkTheme : DefaultTheme,
     colors: isDarkMode ? DarkTheme.colors : DefaultTheme.colors,
   };
+  const linking = {
+    prefixes: [Linking.createURL('/'), 'sgiwelderlegion://'],
+    config: {
+      screens: {
+        [ROUTES.PRODUCTS.DETAIL]: 'product/:id',
+      },
+    },
+  };
+
   return (
     <ThemeProvider value={theme}>
-      <NavigationContainer>
+      <NavigationContainer linking={linking}>
         <UiOverlayProvider>
           <StatusBar barStyle={isDarkMode ? 'light-content' : 'dark-content'} backgroundColor={backgroundStyle.backgroundColor} />
           <RootNavigator />

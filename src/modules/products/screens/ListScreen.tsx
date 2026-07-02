@@ -172,11 +172,11 @@ export function ProductListScreen() {
       previousProducts.map((item) =>
         item.id_producto === idProducto
           ? {
-              ...item,
-              stock: nuevoStock,
-              fecha_edicion:
-                new Date().toISOString(),
-            }
+            ...item,
+            stock: nuevoStock,
+            fecha_edicion:
+              new Date().toISOString(),
+          }
           : item
       )
     );
@@ -216,11 +216,11 @@ export function ProductListScreen() {
       previousProducts.map((item) =>
         item.id_producto === idProducto
           ? {
-              ...item,
-              stock: nuevoStock,
-              fecha_edicion:
-                new Date().toISOString(),
-            }
+            ...item,
+            stock: nuevoStock,
+            fecha_edicion:
+              new Date().toISOString(),
+          }
           : item
       )
     );
@@ -232,11 +232,11 @@ export function ProductListScreen() {
     const ultimaActualizacion =
       product.fecha_edicion
         ? new Date(
-            product.fecha_edicion
-          ).toLocaleString('es-PE')
+          product.fecha_edicion
+        ).toLocaleString('es-PE')
         : 'No registrada';
 
-    const qrData = {
+    /* const qrData = {
       nombre: product.nombre,
       descripcion:
         product.descripcion ?? '',
@@ -247,13 +247,15 @@ export function ProductListScreen() {
       ultimaActualizacion:
         product.fecha_edicion ?? '',
       codigo: product.codigo,
-    };
+    }; */
+
+    const qrData = `sgiwelderlegion://product/${product.id_producto}`;
 
     showAlert({
       isQR: true,
       title: 'Información del producto',
       qrCode: product.codigo,
-      qrValue: JSON.stringify(qrData),
+      qrValue: qrData,
       qrDetails: [
         {
           label: 'Nombre del producto',
@@ -402,12 +404,12 @@ export function ProductListScreen() {
   const selectedStatus =
     statusValue
       ? PRODUCT_STATUS_OPTIONS.find(
-          (option) =>
-            option.value === statusValue
-        ) ?? {
-          value: 'all',
-          label: 'Todos',
-        }
+        (option) =>
+          option.value === statusValue
+      ) ?? {
+        value: 'all',
+        label: 'Todos',
+      }
       : {
         value: 'all',
         label: 'Todos',
@@ -416,12 +418,12 @@ export function ProductListScreen() {
   const selectedCategory =
     categoryValue
       ? CATEGORY_OPTIONS.find(
-          (option) =>
-            option.value === categoryValue
-        ) ?? {
-          value: 'all',
-          label: 'Todas',
-        }
+        (option) =>
+          option.value === categoryValue
+      ) ?? {
+        value: 'all',
+        label: 'Todas',
+      }
       : {
         value: 'all',
         label: 'Todas',

@@ -20,6 +20,8 @@ export type ProductDetail = ProductListItem & {
   descripcion: string | null;
   id_marca: string;
   nombre_marca: string;
+  id_categoria?: string;
+  nombre_categoria?: string;
   id_subcategoria: string;
   nombre_subcategoria: string;
   id_moneda: string;

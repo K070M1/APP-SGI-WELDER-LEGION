@@ -36,6 +36,9 @@ export class ProductService {
       id_marca: row.id_marca ?? '',
       nombre_marca: row.marca?.nombre ?? '',
 
+      id_categoria: row.subcategoria?.id_categoria ?? '',
+      nombre_categoria: row.subcategoria?.categoria?.nombre ?? '',
+
       id_subcategoria: row.id_subcategoria ?? '',
       nombre_subcategoria: row.subcategoria?.nombre ?? '',
 
@@ -203,7 +206,7 @@ export class ProductService {
     try {
       const { data, error } = await insforge.database
         .from('producto')
-        .select('*')
+        .select('*, marca(nombre), subcategoria(nombre, categoria(nombre)), moneda(simbolo)')
         .eq('id', id)
         .single();
 

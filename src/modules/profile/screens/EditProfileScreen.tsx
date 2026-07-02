@@ -296,13 +296,6 @@ export function EditProfileScreen() {
                             className="h-12"
                         />
                     </View>
-
-                    {/* Información del correo */}
-                    <View className="bg-blue-50 p-4 rounded-xl border border-blue-100">
-                        <Text className="text-xs text-blue-600">
-                            <Text className="font-bold">Nota:</Text> El correo electrónico no se puede cambiar desde aquí. Contacta al administrador si necesitas modificarlo.
-                        </Text>
-                    </View>
                 </View>
 
                 {/* BOTONES */}
