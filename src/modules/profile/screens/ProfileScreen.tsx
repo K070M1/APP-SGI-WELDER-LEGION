@@ -117,18 +117,6 @@ export function ProfileScreen() {
               <Text className="text-sm font-bold text-[#333333] mt-0.5">{user?.rol || 'No especificado'}</Text>
             </View>
           </View>
-
-          {/* ID de Usuario */}
-          <View className="bg-white p-4 rounded-2xl border border-[#E8E8E8] flex-row items-center gap-4 shadow-sm">
-            <View className="size-10 rounded-xl bg-[#F8FAFC] border border-[#E8E8E8] items-center justify-center">
-              <Icon as={User} size={18} className="text-[#748FFC]" />
-            </View>
-            <View className="flex-1">
-              <Text className="text-[10px] font-bold text-[#999999] tracking-wider uppercase">ID de Usuario</Text>
-              <Text className="text-sm font-mono text-[#333333] mt-0.5">{user?.id || 'No especificado'}</Text>
-            </View>
-          </View>
-
         </View>
 
         {/* BOTÓN DE CERRAR SESIÓN */}
@@ -136,7 +124,7 @@ export function ProfileScreen() {
           <Button
             variant="destructive"
             onPress={handleLogout}
-            className="w-full rounded-2xl h-14 flex-row items-center justify-center gap-2"
+            className="rounded-2xl flex-row items-center justify-center gap-5 mx-20"
           >
             <Icon as={LogOut} size={20} className="text-white" />
             <Text className="text-white font-semibold">Cerrar Sesión</Text>
